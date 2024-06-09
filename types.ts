@@ -6,4 +6,5 @@ export interface NewMovie {
   duration: number;
   rating: number;
   fileSize: number;
+  actors: []
 }
