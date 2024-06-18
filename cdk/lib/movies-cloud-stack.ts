@@ -1,7 +1,9 @@
 import * as cdk from 'aws-cdk-lib';
 import { CfnOutput, RemovalPolicy } from 'aws-cdk-lib';
-import { CorsHttpMethod, HttpApi, HttpMethod } from 'aws-cdk-lib/aws-apigatewayv2';
+import { CfnAuthorizer, CorsHttpMethod, HttpApi, HttpMethod } from 'aws-cdk-lib/aws-apigatewayv2';
+import { HttpJwtAuthorizer } from 'aws-cdk-lib/aws-apigatewayv2-authorizers';
 import { HttpLambdaIntegration } from 'aws-cdk-lib/aws-apigatewayv2-integrations';
+import { OAuthScope, UserPool, UserPoolClientIdentityProvider } from 'aws-cdk-lib/aws-cognito';
 import { AttributeType, BillingMode, Table } from 'aws-cdk-lib/aws-dynamodb';
 import { Runtime } from 'aws-cdk-lib/aws-lambda';
 import { S3EventSource } from 'aws-cdk-lib/aws-lambda-event-sources';
@@ -13,6 +15,27 @@ import { join } from 'path';
 export class MoviesCloudStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
+
+    const userPool = new UserPool(this, "UserPool", {
+      removalPolicy: cdk.RemovalPolicy.DESTROY,
+    })
+
+    const appIntegrationClient = userPool.addClient("WebClient", {
+      userPoolClientName: "MoviesAppClient",
+      idTokenValidity: cdk.Duration.days(1),
+      accessTokenValidity: cdk.Duration.days(1),
+      authFlows: {
+        adminUserPassword: true
+      },
+      oAuth: {
+        flows: {authorizationCodeGrant: true},
+        scopes: [OAuthScope.OPENID]
+      },
+      supportedIdentityProviders: [UserPoolClientIdentityProvider.COGNITO]
+    });
+
+
+
     const dbTable = new Table(this, 'MoviesTable', {
       partitionKey: { name: 'id', type: AttributeType.STRING },
       removalPolicy: RemovalPolicy.DESTROY,
@@ -32,6 +55,17 @@ export class MoviesCloudStack extends cdk.Stack {
       accessControl: BucketAccessControl.PRIVATE,
       cors: [s3CorsRule]
     });
+    const issuer = `https://cognito-idp.${this.region}.amazonaws.com/${userPool.userPoolId}`;
+
+    const adminAuthorizer = new HttpJwtAuthorizer("AdminMoviesAuthorizer", issuer, {
+      jwtAudience: ['Admin']
+    })
+
+    const userAuthorizer = new HttpJwtAuthorizer("UserMoviesAuthorizer", issuer, {
+      jwtAudience: ['User']
+    })
+
+
 
     const api = new HttpApi(this, "MoviesApi", {
       apiName: "MoviesApi",
@@ -103,12 +137,14 @@ export class MoviesCloudStack extends cdk.Stack {
         path: '/download/{id}',
         methods: [HttpMethod.GET],
         integration: downloadLamdaIntegration,
+        authorizer: adminAuthorizer,
       });
     api.addRoutes(
       {
         path: '/upload',
         methods: [HttpMethod.POST],
-        integration: uploadLamdaIntegration
+        integration: uploadLamdaIntegration,
+        authorizer: userAuthorizer,
       }
     );
     new CfnOutput(this, "ApiEndpoint", {
