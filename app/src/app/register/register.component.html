@@ -10,12 +10,18 @@
       Sign Up
     </span>
     <div class="fields">
+      <input class="email_field" type="text" pInputText placeholder="First Name" [(ngModel)]="firstName" />
+      <input class="email_field" type="email" pInputText placeholder="Last Name" [(ngModel)]="lastName" />
       <input class="email_field" type="email" pInputText placeholder="Email" [(ngModel)]="email" />
       <p-password class="password_field" placeholder="Password" [toggleMask]="true" [feedback]="false"
         [(ngModel)]="password"></p-password>
     </div>
 
-    <p-button type="button" label="Sign In" class="p-button-secondary login-button" type="submit"
-      (onClick)="login()"></p-button>
+    @if (error){
+    <span class="error">Data is not valid!</span>
+    }
+
+    <p-button type="button" label="Sign Up" class="p-button-secondary login-button" type="submit"
+      (onClick)="register()"></p-button>
   </div>
 </div>
