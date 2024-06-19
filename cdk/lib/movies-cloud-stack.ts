@@ -41,6 +41,10 @@ export class MoviesCloudStack extends cdk.Stack {
           mutable: false,
         }
       },
+      passwordPolicy: {
+        minLength: 8,
+        requireSymbols: false,
+      }
     })
 
     const appIntegrationClient = userPool.addClient("WebClient", {
@@ -48,7 +52,8 @@ export class MoviesCloudStack extends cdk.Stack {
       idTokenValidity: cdk.Duration.days(1),
       accessTokenValidity: cdk.Duration.days(1),
       authFlows: {
-        userPassword: true
+        userPassword: true,
+        userSrp: true,
       },
       supportedIdentityProviders: [UserPoolClientIdentityProvider.COGNITO]
     });
