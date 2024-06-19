@@ -1,0 +1,17 @@
+<div class="login-container">
+  <div class="login-forms">
+
+    <span class="login-text">
+      Confirm Email
+    </span>
+    <div class="fields">
+      <input class="email_field" type="text" pInputText placeholder="Confirmation Code" [(ngModel)]="code" />
+    </div>
+
+    <p-button type="button" label="Confirm" class="p-button-primary login-button" type="submit"
+      (onClick)="confirm()"></p-button>
+    <p-button type="button" label="Resend Code" class="p-button-secondary login-button" type="submit"
+      (onClick)="resend()"></p-button>
+
+  </div>
+</div>

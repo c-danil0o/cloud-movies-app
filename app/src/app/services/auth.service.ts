@@ -5,6 +5,8 @@ import {
   CognitoUser,
   CognitoUserAttribute,
   CognitoUserPool,
+  CognitoUserSession,
+  IAuthenticationCallback,
 } from "amazon-cognito-identity-js";
 import { environment } from '../../env';
 import { Observable, Observer } from 'rxjs';
@@ -79,7 +81,49 @@ export class AuthService {
     });
   }
 
+  resendConfirmationCode(username: string): Observable<any> {
+    const userData = {
+      Username: username,
+      Pool: this.getUserPool()
+    };
 
+    let user = new CognitoUser(userData);
+    this.user = user;
+
+    return new Observable(observer => {
+      user.resendConfirmationCode((err, result) => {
+        if (err) {
+          return observer.error(err);
+        }
+        observer.next(result);
+      });
+    });
+  }
+
+  // callbacks
+  authenticate(email: string, password: string): Observable<any> {
+    let authData = {
+      Username: email,
+      Password: password
+    }
+
+    let authenticationDetails = new AuthenticationDetails(authData);
+
+    let userData = {
+      Username: email,
+      Pool: this.getUserPool()
+    }
+
+    let cognitoUser = new CognitoUser(userData);
+    return new Observable(observer => {
+      cognitoUser.authenticateUser(authenticationDetails, {
+        onSuccess: result => observer.next(result),
+        onFailure: result => observer.error(result)
+      })
+
+    })
+
+  }
 
 
 

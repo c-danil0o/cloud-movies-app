@@ -43,6 +43,7 @@ export class RegisterComponent {
         }]).subscribe({
           next: (data) => {
             console.log(data)
+            this.router.navigate(['/confirm', this.email]);
           },
           error: (err) => {
             console.log(err)
