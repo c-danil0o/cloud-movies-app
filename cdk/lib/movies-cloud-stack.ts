@@ -3,7 +3,7 @@ import { CfnOutput, RemovalPolicy } from 'aws-cdk-lib';
 import { CfnAuthorizer, CorsHttpMethod, HttpApi, HttpMethod } from 'aws-cdk-lib/aws-apigatewayv2';
 import { HttpJwtAuthorizer } from 'aws-cdk-lib/aws-apigatewayv2-authorizers';
 import { HttpLambdaIntegration } from 'aws-cdk-lib/aws-apigatewayv2-integrations';
-import { OAuthScope, UserPool, UserPoolClientIdentityProvider } from 'aws-cdk-lib/aws-cognito';
+import { AccountRecovery, OAuthScope, UserPool, UserPoolClientIdentityProvider, VerificationEmailStyle } from 'aws-cdk-lib/aws-cognito';
 import { AttributeType, BillingMode, Table } from 'aws-cdk-lib/aws-dynamodb';
 import { Runtime } from 'aws-cdk-lib/aws-lambda';
 import { S3EventSource } from 'aws-cdk-lib/aws-lambda-event-sources';
@@ -18,6 +18,29 @@ export class MoviesCloudStack extends cdk.Stack {
 
     const userPool = new UserPool(this, "UserPool", {
       removalPolicy: cdk.RemovalPolicy.DESTROY,
+      signInAliases: {
+        email: true
+      },
+      selfSignUpEnabled: true,
+      autoVerify: {
+        email: true
+      },
+      userVerification: {
+        emailSubject: 'You need to verify your email',
+        emailBody: 'Thanks for signing up Your verification code is {####}',
+        emailStyle: VerificationEmailStyle.CODE,
+      },
+      accountRecovery: AccountRecovery.EMAIL_ONLY,
+      standardAttributes: {
+        givenName: {
+          required: true,
+          mutable: false,
+        },
+        familyName: {
+          required: true,
+          mutable: false,
+        }
+      },
     })
 
     const appIntegrationClient = userPool.addClient("WebClient", {
@@ -25,11 +48,7 @@ export class MoviesCloudStack extends cdk.Stack {
       idTokenValidity: cdk.Duration.days(1),
       accessTokenValidity: cdk.Duration.days(1),
       authFlows: {
-        adminUserPassword: true
-      },
-      oAuth: {
-        flows: {authorizationCodeGrant: true},
-        scopes: [OAuthScope.OPENID]
+        userPassword: true
       },
       supportedIdentityProviders: [UserPoolClientIdentityProvider.COGNITO]
     });
@@ -50,7 +69,7 @@ export class MoviesCloudStack extends cdk.Stack {
     };
 
     const moviesBucket = new Bucket(this, 'Movies-bucket', {
-      bucketName: 'movies-cloud-123321123321',
+      bucketName: 'movies-cloud-2301002',
       blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
       accessControl: BucketAccessControl.PRIVATE,
       cors: [s3CorsRule]
