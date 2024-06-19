@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 
 import {
   AuthenticationDetails,
+  CognitoRefreshToken,
   CognitoUser,
   CognitoUserAttribute,
   CognitoUserPool,
@@ -9,7 +10,8 @@ import {
   IAuthenticationCallback,
 } from "amazon-cognito-identity-js";
 import { environment } from '../../env';
-import { Observable, Observer } from 'rxjs';
+import { EMPTY, Observable, Observer, throwError } from 'rxjs';
+import { MessageService } from 'primeng/api';
 
 
 const POOLDATA = {
@@ -27,7 +29,7 @@ export class AuthService {
 
   user: CognitoUser | null = null;
 
-  constructor() { }
+  constructor(private messageService: MessageService) { }
 
 
   getUserPool(): CognitoUserPool {
@@ -115,6 +117,7 @@ export class AuthService {
     }
 
     let cognitoUser = new CognitoUser(userData);
+    this.user = cognitoUser;
     return new Observable(observer => {
       cognitoUser.authenticateUser(authenticationDetails, {
         onSuccess: result => observer.next(result),
@@ -123,6 +126,64 @@ export class AuthService {
 
     })
 
+  }
+
+  login(email: string, password: string) {
+    this.authenticate(email, password).subscribe({
+      next: (result: CognitoUserSession) => {
+        return result;
+      },
+      error: (err) => {
+        console.log(err);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Login failed',
+          key: 'bc',
+          detail: 'Invalid credentials!',
+          life: 2000
+        })
+
+      }
+    })
+  }
+
+  getSession(): Observable<CognitoUserSession | null> {
+    const user = this.getUserPool().getCurrentUser();
+    if (user) {
+      return new Observable(observer => {
+        user.getSession((err: any, session: CognitoUserSession) => {
+          if (err) {
+            return observer.error(err);
+          } else {
+            observer.next(session);
+          }
+        })
+      })
+    } else {
+      return EMPTY;
+    }
+  }
+
+  refreshSession(refreshToken: CognitoRefreshToken): CognitoUserSession | null {
+    const user = this.getUserPool().getCurrentUser();
+    if (user) {
+      user.refreshSession(refreshToken, (err, session) => {
+        if (err) {
+          return null;
+        }
+        return session;
+      })
+    }
+    return null;
+  }
+
+
+
+
+  logout(): void {
+    const user = this.getUserPool().getCurrentUser();
+    if (user != null) {
+    }
   }
 
 
