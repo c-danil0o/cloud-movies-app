@@ -12,6 +12,8 @@ import {
 import { environment } from '../../env';
 import { EMPTY, Observable, Observer, throwError } from 'rxjs';
 import { MessageService } from 'primeng/api';
+import { HttpHeaders } from '@angular/common/http';
+import { nextTick } from 'process';
 
 
 const POOLDATA = {
@@ -28,6 +30,7 @@ const POOLDATA = {
 export class AuthService {
 
   user: CognitoUser | null = null;
+
 
   constructor(private messageService: MessageService) { }
 
@@ -176,6 +179,8 @@ export class AuthService {
     }
     return null;
   }
+
+
 
 
 
