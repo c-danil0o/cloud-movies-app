@@ -35,7 +35,10 @@ export class MoviesCloudStack extends cdk.Stack {
 
     const moviesBucket = new Bucket(this, 'Movies-bucket', {
       bucketName: 'movies-cloud-23010023',
+
+
       blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
+      removalPolicy: RemovalPolicy.DESTROY,
       accessControl: BucketAccessControl.PRIVATE,
       cors: [s3CorsRule]
     });
@@ -103,6 +106,8 @@ export class MoviesCloudStack extends cdk.Stack {
       handler: 'handler',
       ...nodeJsFunctionProps,
     })
+
+    // moviesBucket.grantPut(uploadMovieLambda)
 
 
 
