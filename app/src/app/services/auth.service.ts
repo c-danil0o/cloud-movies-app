@@ -7,13 +7,10 @@ import {
   CognitoUserAttribute,
   CognitoUserPool,
   CognitoUserSession,
-  IAuthenticationCallback,
 } from "amazon-cognito-identity-js";
 import { environment } from '../../env';
 import { BehaviorSubject, EMPTY, Observable, Observer, of, switchMap, throwError } from 'rxjs';
 import { MessageService } from 'primeng/api';
-import { HttpHeaders } from '@angular/common/http';
-import { nextTick } from 'process';
 
 
 const POOLDATA = {
@@ -30,13 +27,21 @@ const POOLDATA = {
 export class AuthService {
 
   user: CognitoUser | null = null;
+  userRole = new BehaviorSubject<string>("none")
+  currentRole = this.userRole.asObservable()
 
 
-  constructor(private messageService: MessageService) { }
+  constructor(private messageService: MessageService) {
+  }
 
 
   getUserPool(): CognitoUserPool {
     return new CognitoUserPool(POOLDATA);
+  }
+
+
+  updateRole(newRole: string) {
+    this.userRole.next(newRole)
   }
 
   signUp(
@@ -123,31 +128,12 @@ export class AuthService {
     this.user = cognitoUser;
     return new Observable(observer => {
       cognitoUser.authenticateUser(authenticationDetails, {
-        onSuccess: result => observer.next(result),
+        onSuccess: result => { this.updateRole(this.extractRole(result)); observer.next(result) },
         onFailure: result => observer.error(result)
       })
 
     })
 
-  }
-
-  login(email: string, password: string) {
-    this.authenticate(email, password).subscribe({
-      next: (result: CognitoUserSession) => {
-        return result;
-      },
-      error: (err) => {
-        console.log(err);
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Login failed',
-          key: 'bc',
-          detail: 'Invalid credentials!',
-          life: 2000
-        })
-
-      }
-    })
   }
 
   getSession(): Observable<CognitoUserSession | null> {
@@ -184,21 +170,27 @@ export class AuthService {
   logout(): void {
     const user = this.getUserPool().getCurrentUser();
     if (user != null) {
+      this.updateRole("none")
       user.signOut()
     }
   }
 
+  extractRole(session: CognitoUserSession) {
+
+    let groups: string[] = (session.getIdToken().decodePayload()['cognito:groups']);
+    if (groups.includes('Admin')) {
+      return "Admin";
+    }
+    if (groups.includes("User")) {
+      return "User";
+    }
+    return "none"
+  }
 
   getRole(): Observable<string> {
     return this.getSession().pipe(switchMap((session) => {
       if (session != null) {
-        let groups: string[] = (session.getIdToken().decodePayload()['cognito:groups']);
-        if (groups.includes('Admin')) {
-          return of("Admin");
-        }
-        if (groups.includes("User")) {
-          return of("User");
-        }
+        return of(this.extractRole(session))
       }
       return of("none");
     }));
