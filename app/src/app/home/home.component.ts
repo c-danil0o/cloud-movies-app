@@ -17,7 +17,7 @@ export class HomeComponent implements OnInit {
   }
 
   check() {
-    this.movieService.getDownloadUrl().subscribe({
+    this.movieService.getDownloadUrl("123").subscribe({
       next: (data) => console.log(data),
       error: (err) => console.log(err)
     })

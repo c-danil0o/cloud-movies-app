@@ -4,6 +4,7 @@ import { ToastModule } from 'primeng/toast';
 import { MoviesModule } from './movies/movies.module';
 import { LayoutModule } from './layout/layout.module';
 
+
 @Component({
   selector: 'app-root',
   standalone: true,
