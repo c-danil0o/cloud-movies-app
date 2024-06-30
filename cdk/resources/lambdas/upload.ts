@@ -1,6 +1,6 @@
 import { APIGatewayProxyEvent, Context, APIGatewayProxyResult } from "aws-lambda";
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3'
-import { NewMovie } from "../../types";
+import { Movie } from "../../types";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { randomUUID } from "crypto";
 import { DynamoDBDocument } from "@aws-sdk/lib-dynamodb";
@@ -13,7 +13,7 @@ async function handler(event: APIGatewayProxyEvent, context: Context) {
   if (!event.body) {
     return { statusCode: 400, body: 'invalid request, you are missing the parameter body' };
   }
-  const item = typeof event.body == 'object' ? event.body : JSON.parse(event.body) as NewMovie;
+  const item = typeof event.body == 'object' ? event.body : JSON.parse(event.body) as Movie;
   const db = DynamoDBDocument.from(new DynamoDB());
   console.log(event)
   try {
