@@ -28,4 +28,8 @@ export class MovieService {
     return this.httpClient.get("https://sxui8pte74.execute-api.eu-central-1.amazonaws.com/download/123");
   }
 
+  getAllMovies(): Observable<any> {
+    return this.httpClient.get("https://sxui8pte74.execute-api.eu-central-1.amazonaws.com/all")
+  }
+
 }

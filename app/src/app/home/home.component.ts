@@ -23,8 +23,10 @@ export class HomeComponent implements OnInit {
     })
     let movie = {
       name: "Pulp Fiction",
+      description : "adasd",
       year: 1998,
       director: "Quentin Tarantino",
+      genre: "Drama",
       duration: 2.5,
       rating: 7.9,
       fileSize: 4000,

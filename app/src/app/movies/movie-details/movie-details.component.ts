@@ -14,19 +14,21 @@ import { FormsModule } from '@angular/forms';
     styleUrls: ['./movie-details.component.css'],
 })
 export class MovieDetailsComponent implements OnInit {
-    
+
     movie!: Movie;
-  
+
     constructor(private route: ActivatedRoute) { }
-  
+
     ngOnInit(): void {
       //get from endpoint
       this.route.params.subscribe(params => {
         this.movie = {
-          id: params['id'], 
+          id: params['id'],
           name: 'Example Movie',
+          description: "adad",
           year: 2023,
           director: 'John Doe',
+          genre: 'Comedy',
           duration: 120,
           rating: 4.5,
           fileSize: 2000,
@@ -40,6 +42,6 @@ export class MovieDetailsComponent implements OnInit {
     }
 
     play(){
-      
+
     }
 }

@@ -1,17 +1,23 @@
 import * as cdk from 'aws-cdk-lib';
-import { CfnOutput, RemovalPolicy } from 'aws-cdk-lib';
-import { CfnAuthorizer, CorsHttpMethod, HttpApi, HttpMethod } from 'aws-cdk-lib/aws-apigatewayv2';
-import { HttpJwtAuthorizer, HttpLambdaAuthorizer, HttpLambdaResponseType } from 'aws-cdk-lib/aws-apigatewayv2-authorizers';
-import { HttpLambdaIntegration } from 'aws-cdk-lib/aws-apigatewayv2-integrations';
-import { AccountRecovery, CfnUserPoolGroup, OAuthScope, UserPool, UserPoolClientIdentityProvider, VerificationEmailStyle } from 'aws-cdk-lib/aws-cognito';
-import { AttributeType, BillingMode, Table } from 'aws-cdk-lib/aws-dynamodb';
-import { Policy, PolicyStatement } from 'aws-cdk-lib/aws-iam';
-import { Runtime } from 'aws-cdk-lib/aws-lambda';
-import { S3EventSource } from 'aws-cdk-lib/aws-lambda-event-sources';
-import { NodejsFunction, NodejsFunctionProps } from 'aws-cdk-lib/aws-lambda-nodejs';
-import { BlockPublicAccess, Bucket, BucketAccessControl, CorsRule, EventType, HttpMethods } from 'aws-cdk-lib/aws-s3';
-import { Construct } from 'constructs';
-import { join } from 'path';
+import {CfnOutput, RemovalPolicy} from 'aws-cdk-lib';
+import {CorsHttpMethod, HttpApi, HttpMethod} from 'aws-cdk-lib/aws-apigatewayv2';
+import {HttpLambdaAuthorizer, HttpLambdaResponseType} from 'aws-cdk-lib/aws-apigatewayv2-authorizers';
+import {HttpLambdaIntegration} from 'aws-cdk-lib/aws-apigatewayv2-integrations';
+import {
+  AccountRecovery,
+  CfnUserPoolGroup,
+  UserPool,
+  UserPoolClientIdentityProvider,
+  VerificationEmailStyle
+} from 'aws-cdk-lib/aws-cognito';
+import {AttributeType, BillingMode, Table} from 'aws-cdk-lib/aws-dynamodb';
+import {Policy, PolicyStatement} from 'aws-cdk-lib/aws-iam';
+import {Runtime} from 'aws-cdk-lib/aws-lambda';
+import {S3EventSource} from 'aws-cdk-lib/aws-lambda-event-sources';
+import {NodejsFunction, NodejsFunctionProps} from 'aws-cdk-lib/aws-lambda-nodejs';
+import {BlockPublicAccess, Bucket, BucketAccessControl, CorsRule, EventType, HttpMethods} from 'aws-cdk-lib/aws-s3';
+import {Construct} from 'constructs';
+import {join} from 'path';
 
 export class MoviesCloudStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
@@ -107,6 +113,12 @@ export class MoviesCloudStack extends cdk.Stack {
       ...nodeJsFunctionProps,
     })
 
+    const getAllMoviesLambda = new NodejsFunction(this, "GetAllMoviesLambda", {
+      entry: 'resources/lambdas/get-all-movies.ts',
+      handler: 'handler',
+      ...nodeJsFunctionProps,
+    })
+
     // moviesBucket.grantPut(uploadMovieLambda)
 
 
@@ -184,6 +196,7 @@ export class MoviesCloudStack extends cdk.Stack {
     dbTable.grantReadWriteData(downloadMovieLambda);
     dbTable.grantReadWriteData(uploadMovieLambda);
     dbTable.grantReadWriteData(updateTableAfterUploadLambda);
+    dbTable.grantReadWriteData(getAllMoviesLambda);
 
     moviesBucket.grantPutAcl(uploadMovieLambda);
     moviesBucket.grantPut(uploadMovieLambda);
@@ -213,7 +226,7 @@ export class MoviesCloudStack extends cdk.Stack {
     const downloadLamdaIntegration = new HttpLambdaIntegration("DownloadLambdaIntegration", downloadMovieLambda);
     const uploadLamdaIntegration = new HttpLambdaIntegration("UploadLambdaIntelgration", uploadMovieLambda);
     const corsOptionsLambdaIntegration = new HttpLambdaIntegration("CorsOptionsLambdaIntegration", corsOptionsLambda);
-
+    const getAllMoviesLambdaIntegration = new HttpLambdaIntegration("GetAllMoviesLambdaIntegration", getAllMoviesLambda);
 
     const adminAuthorizer = new HttpLambdaAuthorizer("AdminAuthorizer", adminAuthorizerLambda, {
       responseTypes: [HttpLambdaResponseType.SIMPLE]
@@ -246,6 +259,13 @@ export class MoviesCloudStack extends cdk.Stack {
         methods: [HttpMethod.OPTIONS],
         integration: corsOptionsLambdaIntegration,
       }
+    );
+    api.addRoutes(
+        {
+          path: '/all',
+          methods: [HttpMethod.GET],
+          integration: getAllMoviesLambdaIntegration,
+        }
     );
     new CfnOutput(this, "ApiEndpoint", {
       value: api.apiEndpoint,
