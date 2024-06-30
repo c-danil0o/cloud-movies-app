@@ -10,7 +10,7 @@ import {
   IAuthenticationCallback,
 } from "amazon-cognito-identity-js";
 import { environment } from '../../env';
-import { EMPTY, Observable, Observer, throwError } from 'rxjs';
+import { BehaviorSubject, EMPTY, Observable, Observer, of, switchMap, throwError } from 'rxjs';
 import { MessageService } from 'primeng/api';
 import { HttpHeaders } from '@angular/common/http';
 import { nextTick } from 'process';
@@ -163,7 +163,7 @@ export class AuthService {
         })
       })
     } else {
-      return EMPTY;
+      return of(null);
     }
   }
 
@@ -181,14 +181,27 @@ export class AuthService {
   }
 
 
-
-
-
-
   logout(): void {
     const user = this.getUserPool().getCurrentUser();
     if (user != null) {
+      user.signOut()
     }
+  }
+
+
+  getRole(): Observable<string> {
+    return this.getSession().pipe(switchMap((session) => {
+      if (session != null) {
+        let groups: string[] = (session.getIdToken().decodePayload()['cognito:groups']);
+        if (groups.includes('Admin')) {
+          return of("Admin");
+        }
+        if (groups.includes("User")) {
+          return of("User");
+        }
+      }
+      return of("none");
+    }));
   }
 
 

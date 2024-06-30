@@ -13,4 +13,5 @@ import { LayoutModule } from './layout/layout.module';
 })
 export class AppComponent {
   title = 'app';
+  loggedIn = false;
 }
