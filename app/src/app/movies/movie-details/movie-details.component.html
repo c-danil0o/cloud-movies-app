@@ -1,0 +1,24 @@
+<div class="movie-details-card">
+    <div class="movie-header">
+        <img src="assets/img/movie-icon.png" alt="Movie Poster" class="movie-poster">
+        <div class="movie-header-info">
+        <h2>{{ movie.name }}</h2>
+        <p>{{ movie.year }} | Rating: {{ movie.rating }}</p>
+        </div>
+        <p-button label="Play" [outlined]="true" severity="success" [raised]="true" class="fa fa-play" iconPos="right" (onClick)="play()"/>
+        
+    </div>
+    <div class="movie-body">
+        <p><strong>Director:</strong> {{ movie.director }}</p>
+        <p><strong>Duration:</strong> {{ movie.duration }} minutes</p>
+        <p><strong>File Size:</strong> {{ movie.fileSize }} MB</p>
+        <p><strong>Actors:</strong></p>
+        <ul>
+            <li *ngFor="let actor of movie.actors">{{ actor }}</li>
+        </ul>
+    </div>
+    <div class="movie-footer">
+        <p-button type="button" label="Download" class="p-button-secondary" [outlined]="true"
+      (onClick)="download()"></p-button>
+    </div>
+</div>
