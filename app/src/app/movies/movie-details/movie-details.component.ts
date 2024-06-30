@@ -2,6 +2,8 @@ import { Component, OnInit} from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Movie } from '../../models/movie';
 
+import {MovieService} from "../../services/movie.service";
+
 import { ButtonModule } from 'primeng/button';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -16,24 +18,20 @@ import { FormsModule } from '@angular/forms';
 export class MovieDetailsComponent implements OnInit {
 
     movie!: Movie;
+    actors!: string;
+    
 
-    constructor(private route: ActivatedRoute) { }
+    constructor(private route: ActivatedRoute, private movieService: MovieService) { }
 
     ngOnInit(): void {
-      //get from endpoint
       this.route.params.subscribe(params => {
-        this.movie = {
-          id: params['id'],
-          name: 'Example Movie',
-          description: "adad",
-          year: 2023,
-          director: 'John Doe',
-          genre: 'Comedy',
-          duration: 120,
-          rating: 4.5,
-          fileSize: 2000,
-          actors: ['Actor 1', 'Actor 2', 'Actor 3', 'Actor 4', 'Actor 5', 'Actor 6']
-        };
+        this.movieService.getMovieById(params['id']).subscribe({
+          next: (data) =>{
+            this.movie = data.Item;
+            this.actors = data.Item.actors;
+            this.movie.actors = this.actors.split(",");
+          }
+        })
       });
     }
 

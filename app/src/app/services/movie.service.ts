@@ -32,4 +32,7 @@ export class MovieService {
     return this.httpClient.get("https://sxui8pte74.execute-api.eu-central-1.amazonaws.com/all")
   }
 
+  getMovieById(id : string): Observable<any> {
+    return this.httpClient.get("https://sxui8pte74.execute-api.eu-central-1.amazonaws.com/movie/" + id)
+  }
 }
