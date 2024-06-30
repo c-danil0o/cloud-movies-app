@@ -16,3 +16,9 @@ export interface Movie {
   thumbnail: string;
   search_field?: string;
 }
+
+export interface Rating{
+  id: string;
+  user: string;
+  movie_id: string;
+}
