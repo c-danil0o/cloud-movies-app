@@ -10,7 +10,7 @@ import {
   UserPoolClientIdentityProvider,
   VerificationEmailStyle
 } from 'aws-cdk-lib/aws-cognito';
-import {AttributeType, BillingMode, Table, ProjectionType} from 'aws-cdk-lib/aws-dynamodb';
+import {AttributeType, BillingMode, Table} from 'aws-cdk-lib/aws-dynamodb';
 import {Policy, PolicyStatement} from 'aws-cdk-lib/aws-iam';
 import {Runtime} from 'aws-cdk-lib/aws-lambda';
 import {S3EventSource} from 'aws-cdk-lib/aws-lambda-event-sources';
@@ -59,6 +59,8 @@ export class MoviesCloudStack extends cdk.Stack {
 
     const moviesBucket = new Bucket(this, 'Movies-bucket', {
       bucketName: 'movies-cloud-23010023',
+
+
       blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
       removalPolicy: RemovalPolicy.DESTROY,
       accessControl: BucketAccessControl.PRIVATE,
@@ -134,6 +136,12 @@ export class MoviesCloudStack extends cdk.Stack {
       entry: 'resources/lambdas/get-all-movies.ts',
       handler: 'handler',
       ...nodeJsFunctionProps,
+    })
+
+    const getMovieByIdLambda = new NodejsFunction(this, "GetMovieByIdLambda",{
+      entry: 'resources/lambdas/get-movie-by-id.ts',
+      handler: 'handler',
+      ...nodeJsFunctionProps
     })
 
     const rateMovieLambda = new NodejsFunction(this, "RateMovieLambda", {
@@ -220,6 +228,7 @@ export class MoviesCloudStack extends cdk.Stack {
     dbTable.grantReadWriteData(uploadMovieLambda);
     dbTable.grantReadWriteData(updateTableAfterUploadLambda);
     dbTable.grantReadWriteData(getAllMoviesLambda);
+    dbTable.grantReadWriteData(getMovieByIdLambda);
     ratingsTable.grantReadWriteData(rateMovieLambda);
 
     moviesBucket.grantPutAcl(uploadMovieLambda);
@@ -251,6 +260,7 @@ export class MoviesCloudStack extends cdk.Stack {
     const uploadLamdaIntegration = new HttpLambdaIntegration("UploadLambdaIntelgration", uploadMovieLambda);
     const corsOptionsLambdaIntegration = new HttpLambdaIntegration("CorsOptionsLambdaIntegration", corsOptionsLambda);
     const getAllMoviesLambdaIntegration = new HttpLambdaIntegration("GetAllMoviesLambdaIntegration", getAllMoviesLambda);
+    const getMovieByIdIntegration = new HttpLambdaIntegration("GetMovieByIdIntegration", getMovieByIdLambda);
     const rateMovieIntegration = new HttpLambdaIntegration("RateMovieLambdaIntegration", rateMovieLambda);
 
     const adminAuthorizer = new HttpLambdaAuthorizer("AdminAuthorizer", adminAuthorizerLambda, {
@@ -292,6 +302,12 @@ export class MoviesCloudStack extends cdk.Stack {
           integration: getAllMoviesLambdaIntegration,
         }
     );
+    api.addRoutes({
+      path: '/movie/{id}',
+      methods: [HttpMethod.GET],
+      integration: getMovieByIdIntegration,
+    })
+
     api.addRoutes(
         {
           path: '/rate',
