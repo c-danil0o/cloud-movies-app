@@ -14,6 +14,30 @@ async function handler(event: APIGatewayEvent, context: Context){
     const item = typeof event.body == 'object' ? event.body : JSON.parse(event.body) as Rating;
     const db = DynamoDBDocument.from(new DynamoDB());
     try{
+        const checkParams = {
+            TableName: RATINGS_TABLE_NAME,
+            IndexName: 'UsersIndex', // Assuming the GSI for user is named 'UserIndex'
+            KeyConditionExpression: '#usr = :user AND movie_id = :movie_id',
+            ExpressionAttributeNames: {
+                '#usr': 'user'
+            },
+            ExpressionAttributeValues: {
+                ':user': item.user,
+                ':movie_id': item.movie_id
+            }
+        };
+        console.log(checkParams);
+        const { Items } = await db.query(checkParams);
+        console.log(Items)
+        if (Items && Items.length > 0) {
+            // User has already rated this movie
+            return {
+                statusCode: 400,
+                body: JSON.stringify({ message: 'User has already rated this movie' })
+            };
+        }
+
+
         item.id = randomUUID();
         const params = {
             TableName: RATINGS_TABLE_NAME,

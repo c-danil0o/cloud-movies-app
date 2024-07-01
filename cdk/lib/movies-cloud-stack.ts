@@ -10,7 +10,7 @@ import {
   UserPoolClientIdentityProvider,
   VerificationEmailStyle
 } from 'aws-cdk-lib/aws-cognito';
-import {AttributeType, BillingMode, Table} from 'aws-cdk-lib/aws-dynamodb';
+import {AttributeType, BillingMode, Table, ProjectionType} from 'aws-cdk-lib/aws-dynamodb';
 import {Policy, PolicyStatement} from 'aws-cdk-lib/aws-iam';
 import {Runtime} from 'aws-cdk-lib/aws-lambda';
 import {S3EventSource} from 'aws-cdk-lib/aws-lambda-event-sources';
@@ -39,8 +39,9 @@ export class MoviesCloudStack extends cdk.Stack {
     })
 
     ratingsTable.addGlobalSecondaryIndex({
-      indexName: 'UserIndex',
+      indexName: 'UsersIndex',
       partitionKey: { name: 'user', type: AttributeType.STRING },
+      sortKey: { name: 'movie_id', type: AttributeType.STRING },
       projectionType: ProjectionType.ALL,
     });
 
@@ -51,7 +52,7 @@ export class MoviesCloudStack extends cdk.Stack {
     });
 
     const s3CorsRule: CorsRule = {
-      allowedMethods: [HttpMethods.GET, HttpMethods.HEAD, HttpMethods.POST],
+      allowedMethods: [HttpMethods.GET, HttpMethods.HEAD, HttpMethods.POST, HttpMethods.PUT],
       allowedOrigins: ['*'],
       allowedHeaders: ['*'],
       maxAge: 300,
@@ -285,7 +286,7 @@ export class MoviesCloudStack extends cdk.Stack {
         path: '/upload',
         methods: [HttpMethod.POST],
         integration: uploadLamdaIntegration,
-        authorizer: userAuthorizer,
+        authorizer: adminAuthorizer,
       }
     );
     api.addRoutes(

@@ -2,6 +2,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Movie } from '../models/movie';
+import {Rating} from "../models/rating";
 
 @Injectable({
   providedIn: 'root'
@@ -34,5 +35,11 @@ export class MovieService {
 
   getMovieById(id : string): Observable<any> {
     return this.httpClient.get("https://sxui8pte74.execute-api.eu-central-1.amazonaws.com/movie/" + id)
+  }
+
+  rateMovie(rating: Rating): Observable<any> {
+    return this.httpClient.post("https://sxui8pte74.execute-api.eu-central-1.amazonaws.com/rate", rating, {
+      headers: this.headers
+    });
   }
 }
