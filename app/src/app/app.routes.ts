@@ -6,6 +6,7 @@ import { HomeComponent } from './home/home.component';
 import { MoviesCatalogComponent } from './movies/movies-catalog/movies-catalog.component'
 import { MovieDetailsComponent } from './movies/movie-details/movie-details.component';
 import { authGuard, authGuard_admin } from './auth/guard';
+import { AddMovieComponent } from './movies/add-movie/add-movie.component';
 
 
 export const routes: Routes = [
@@ -14,5 +15,6 @@ export const routes: Routes = [
   { component: ConfirmComponent, path: "confirm/:email", canActivate: [authGuard] },
   { component: HomeComponent, path: "home", canActivate: [authGuard_admin] },
   { component: MoviesCatalogComponent, path: "catalog", canActivate: [authGuard] },
-  { component: MovieDetailsComponent, path: "details/:id", canActivate: [authGuard] }
+  { component: MovieDetailsComponent, path: "details/:id", canActivate: [authGuard] },
+  { component: AddMovieComponent, path: "add-movie", canActivate: [authGuard_admin] }
 ];

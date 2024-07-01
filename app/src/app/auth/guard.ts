@@ -6,16 +6,19 @@ import { of, switchMap } from "rxjs";
 export const authGuard: CanActivateFn = () => {
   const authService = inject(AuthService);
   const router = inject(Router);
-  return authService.getSession().pipe(
-    (status) => {
-      console.log(status);
-      if (status) {
-        return of(true);
-      }
-      router.navigate(['/login'])
-      return of(false);
+  return authService.getSession().pipe(switchMap((session) => {
+    if (session != null) {
+      let groups: string[] = (session.getIdToken().decodePayload()['cognito:groups'])
+      authService.updateRole(authService.extractRole(session))
+      if (groups.length == 0)
+        return of(false)
+      return of(groups.includes('Admin') || groups.includes("User"));
+    } else {
+      router.navigate(['/login']);
+      return of(false)
+    }
 
-    });
+  }));
 };
 export const authGuard_admin: CanActivateFn = () => {
   const authService = inject(AuthService);
@@ -23,6 +26,7 @@ export const authGuard_admin: CanActivateFn = () => {
   return authService.getSession().pipe(switchMap((session) => {
     if (session != null) {
       let groups: string[] = (session.getIdToken().decodePayload()['cognito:groups'])
+      authService.updateRole(authService.extractRole(session))
       if (groups.length == 0)
         return of(false)
       return of(groups.includes('Admin'));
@@ -39,6 +43,7 @@ export const authGuard_user: CanActivateFn = () => {
   return authService.getSession().pipe(switchMap((session) => {
     if (session != null) {
       let groups: string[] = (session.getIdToken().decodePayload()['cognito:groups'])
+      authService.updateRole(authService.extractRole(session))
       if (groups.length == 0)
         return of(false)
       return of(groups.includes('User'));

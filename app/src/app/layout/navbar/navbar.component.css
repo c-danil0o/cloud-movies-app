@@ -1,7 +1,7 @@
 .navbar {
   margin: 0;
   padding-left: 30px;
-  padding-right: 30px;
+  padding-left: 30px;
   background-color: #2a2a2a;
   height: 65px;
   display: flex;
