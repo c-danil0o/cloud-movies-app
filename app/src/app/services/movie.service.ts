@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Movie } from '../models/movie';
 import { UploadUrl } from '../models/upload_url';
+import {Rating} from "../models/rating";
 
 @Injectable({
   providedIn: 'root'
@@ -32,4 +33,17 @@ export class MovieService {
     return this.httpClient.put(uploadUrl, file, { headers: this.skipheaders });
   }
 
+  getAllMovies(): Observable<any> {
+    return this.httpClient.get("https://sxui8pte74.execute-api.eu-central-1.amazonaws.com/all")
+  }
+
+  getMovieById(id : string): Observable<any> {
+    return this.httpClient.get("https://sxui8pte74.execute-api.eu-central-1.amazonaws.com/movie/" + id)
+  }
+
+  rateMovie(rating: Rating): Observable<any> {
+    return this.httpClient.post("https://sxui8pte74.execute-api.eu-central-1.amazonaws.com/rate", rating, {
+      headers: this.headers
+    });
+  }
 }

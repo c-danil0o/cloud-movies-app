@@ -31,7 +31,6 @@ async function handler(event: APIGatewayProxyEvent, context: Context) {
         url: signedUrl,
       }),
     };
-
     return response;
   } catch (err) {
     console.error(err);
