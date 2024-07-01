@@ -1,3 +1,7 @@
 @import "primeng/resources/themes/arya-blue/theme.css";
 @import "primeng/resources/primeng.css";
 @import url('https://fonts.cdnfonts.com/css/nunito-2');
+
+* {
+  font-family: Nunito, sans-serif;
+}

@@ -1,4 +1,4 @@
-import { Component, OnInit} from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Movie } from '../../models/movie';
 
@@ -13,7 +13,7 @@ import {InputTextareaModule} from "primeng/inputtextarea";
 import {Rating} from "../../models/rating";
 
 @Component({
-    selector: 'app-movie-details',
+  selector: 'app-movie-details',
     standalone: true,
   imports: [ButtonModule, FormsModule, CommonModule, DialogModule, RatingModule, InputTextareaModule],
     templateUrl: './movie-details.component.html',

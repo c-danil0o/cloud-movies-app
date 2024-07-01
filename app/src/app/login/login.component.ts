@@ -6,6 +6,7 @@ import { Router } from '@angular/router';
 import { RouterModule } from '@angular/router';
 import { InputTextModule } from 'primeng/inputtext'
 import { AuthService } from '../services/auth.service';
+import { MessageService } from 'primeng/api';
 
 @Component({
   selector: 'app-login',
@@ -20,7 +21,7 @@ export class LoginComponent {
   emailRegex: any;
   error: boolean = false;
 
-  constructor(private router: Router, private authService: AuthService) {
+  constructor(private messageService: MessageService, private router: Router, private authService: AuthService) {
     this.email = "";
     this.password = "";
     this.emailRegex = new RegExp(/^(([^<>()[\]\.,;:\s@\"]+(\.[^<>()[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i);
@@ -38,7 +39,16 @@ export class LoginComponent {
       this.error = false;
       this.authService.authenticate(this.email, this.password).subscribe({
         next: (result) => { console.log(result); this.router.navigate(['/home']) },
-        error: (err) => console.log(err)
+        error: (err) => {
+          console.log(err);
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Login failed',
+            key: 'bc',
+            detail: 'Invalid credentials!',
+            life: 2000
+          })
+        }
       });
 
 
