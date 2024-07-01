@@ -5,13 +5,12 @@ export interface Movie {
   description: string;
   episode_number?: number;
   year: number;
-  genre: string;
   director: string;
   genre: string;
   duration: number;
   rating: number;
   fileSize: number;
-  actors: string,
+  actors: string[];
   created_at: number;
   modified_at: number;
   thumbnail: string;

@@ -65,6 +65,7 @@ export class AddMovieComponent {
           detail: 'Please enter valid data!',
           life: 2000
         })
+        return;
       }
       let ep = -1
       if (this.selectedOption == "series") {
@@ -82,7 +83,7 @@ export class AddMovieComponent {
         duration: Number(this.duration),
         rating: Number(this.rating),
         fileSize: this.fileSize,
-        actors: this.actors,
+        actors: this.actors.split(","),
         thumbnail: this.thumbnail,
         created_at: new Date().valueOf(),
         modified_at: this.movie?.lastModified || 0,

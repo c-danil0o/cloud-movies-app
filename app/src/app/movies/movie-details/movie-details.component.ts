@@ -22,7 +22,6 @@ import {Rating} from "../../models/rating";
 export class MovieDetailsComponent implements OnInit {
 
     movie!: Movie;
-    actors!: string;
     movieRatingVisible: boolean = false;
     movie_rating_value: number = -1;
 
@@ -34,8 +33,6 @@ export class MovieDetailsComponent implements OnInit {
         this.movieService.getMovieById(params['id']).subscribe({
           next: (data) =>{
             this.movie = data.Item;
-            this.actors = data.Item.actors;
-            this.movie.actors = this.actors.split(",");
           }
         })
       });
@@ -68,4 +65,6 @@ export class MovieDetailsComponent implements OnInit {
       this.movieRatingVisible = false;
       this.movie_rating_value = -1
     }
+
+  protected readonly Math = Math;
 }
