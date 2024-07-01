@@ -17,8 +17,8 @@
 }
 
 .movie-picture {
-    width: 100%;
-    height: auto;
+    width: auto;
+    height: 250px;
     border-radius: 8px;
 }
 
