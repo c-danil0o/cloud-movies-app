@@ -29,9 +29,31 @@
         </p-dialog>
     </div>
     <div class="movie-footer">
-        <p-button type="button" label="Download" class="p-button-secondary" [outlined]="true"
-      (onClick)="download()"></p-button>
-      <p-button type="button" label="Rate Movie" class="p-button-secondary" [outlined]="true"
+        <p-button type="button" label="Download"
+         class="p-button-secondary" [outlined]="true" (onClick)="download()"></p-button>
+       <p-button type="button" label="Rate Movie" class="p-button-secondary" [outlined]="true"
                 (onClick)="showRateDialog()"></p-button>
     </div>
+
+    
 </div>
+
+<p-dialog 
+    header="{{movie.name}}"
+    [(visible)]="visible" 
+    [modal]="true" 
+    [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }" 
+    [style]="{ width: '70vw' }" 
+    [draggable]="false" 
+    [resizable]="true">
+    <div *ngIf="videoUrl">
+      <div class="video-player-modal">
+        <video controls autoplay>
+          <source [src]="videoUrl" type="video/mp4">
+          Your browser does not support the video tag.
+        </video>
+      </div>
+    </div>
+</p-dialog>
+
+  

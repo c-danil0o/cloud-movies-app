@@ -1,4 +1,4 @@
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Movie } from '../models/movie';
@@ -25,8 +25,8 @@ export class MovieService {
     })
   }
 
-  getDownloadUrl(): Observable<any> {
-    return this.httpClient.get("https://sxui8pte74.execute-api.eu-central-1.amazonaws.com/download/123");
+  getDownloadUrl(id: string): Observable<any> {
+    return this.httpClient.get("https://sxui8pte74.execute-api.eu-central-1.amazonaws.com/download/" + id);
   }
 
   uploadMovie(uploadUrl: string, file: File) {
