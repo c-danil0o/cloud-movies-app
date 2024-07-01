@@ -3,4 +3,5 @@ export interface Rating {
   user: string;
   movie_id: string;
   grade: number;
+  email: string;
 }
