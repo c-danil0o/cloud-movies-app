@@ -10,7 +10,7 @@ import {
   UserPoolClientIdentityProvider,
   VerificationEmailStyle
 } from 'aws-cdk-lib/aws-cognito';
-import {AttributeType, BillingMode, Table} from 'aws-cdk-lib/aws-dynamodb';
+import {AttributeType, BillingMode, Table, ProjectionType} from 'aws-cdk-lib/aws-dynamodb';
 import {Policy, PolicyStatement} from 'aws-cdk-lib/aws-iam';
 import {Runtime} from 'aws-cdk-lib/aws-lambda';
 import {S3EventSource} from 'aws-cdk-lib/aws-lambda-event-sources';
@@ -32,8 +32,27 @@ export class MoviesCloudStack extends cdk.Stack {
       billingMode: BillingMode.PAY_PER_REQUEST,
     });
 
+    const ratingsTable = new Table(this, 'Ratings', {
+      partitionKey: { name: 'id', type: AttributeType.STRING },
+      removalPolicy: RemovalPolicy.DESTROY,
+      billingMode: BillingMode.PAY_PER_REQUEST,
+    })
+
+    ratingsTable.addGlobalSecondaryIndex({
+      indexName: 'UsersIndex',
+      partitionKey: { name: 'user', type: AttributeType.STRING },
+      sortKey: { name: 'movie_id', type: AttributeType.STRING },
+      projectionType: ProjectionType.ALL,
+    });
+
+    ratingsTable.addGlobalSecondaryIndex({
+      indexName: 'MovieIndex',
+      partitionKey: { name: 'movie_id', type: AttributeType.STRING },
+      projectionType: ProjectionType.ALL,
+    });
+
     const s3CorsRule: CorsRule = {
-      allowedMethods: [HttpMethods.GET, HttpMethods.HEAD, HttpMethods.POST],
+      allowedMethods: [HttpMethods.GET, HttpMethods.HEAD, HttpMethods.POST, HttpMethods.PUT],
       allowedOrigins: ['*'],
       allowedHeaders: ['*'],
       maxAge: 300,
@@ -78,6 +97,7 @@ export class MoviesCloudStack extends cdk.Stack {
       environment: {
         PRIMARY_KEY: 'itemId',
         TABLE_NAME: dbTable.tableName,
+        RATINGS_TABLE_NAME: ratingsTable.tableName,
         BUCKET_NAME: moviesBucket.bucketName,
       },
       runtime: Runtime.NODEJS_20_X,
@@ -123,6 +143,12 @@ export class MoviesCloudStack extends cdk.Stack {
       entry: 'resources/lambdas/get-movie-by-id.ts',
       handler: 'handler',
       ...nodeJsFunctionProps
+    })
+
+    const rateMovieLambda = new NodejsFunction(this, "RateMovieLambda", {
+      entry: 'resources/lambdas/rate-movie.ts',
+      handler: 'handler',
+      ...nodeJsFunctionProps,
     })
 
     // moviesBucket.grantPut(uploadMovieLambda)
@@ -204,6 +230,7 @@ export class MoviesCloudStack extends cdk.Stack {
     dbTable.grantReadWriteData(updateTableAfterUploadLambda);
     dbTable.grantReadWriteData(getAllMoviesLambda);
     dbTable.grantReadWriteData(getMovieByIdLambda);
+    ratingsTable.grantReadWriteData(rateMovieLambda);
 
     moviesBucket.grantPutAcl(uploadMovieLambda);
     moviesBucket.grantPut(uploadMovieLambda);
@@ -235,6 +262,7 @@ export class MoviesCloudStack extends cdk.Stack {
     const corsOptionsLambdaIntegration = new HttpLambdaIntegration("CorsOptionsLambdaIntegration", corsOptionsLambda);
     const getAllMoviesLambdaIntegration = new HttpLambdaIntegration("GetAllMoviesLambdaIntegration", getAllMoviesLambda);
     const getMovieByIdIntegration = new HttpLambdaIntegration("GetMovieByIdIntegration", getMovieByIdLambda);
+    const rateMovieIntegration = new HttpLambdaIntegration("RateMovieLambdaIntegration", rateMovieLambda);
 
     const adminAuthorizer = new HttpLambdaAuthorizer("AdminAuthorizer", adminAuthorizerLambda, {
       responseTypes: [HttpLambdaResponseType.SIMPLE]
@@ -258,7 +286,7 @@ export class MoviesCloudStack extends cdk.Stack {
         path: '/upload',
         methods: [HttpMethod.POST],
         integration: uploadLamdaIntegration,
-        authorizer: userAuthorizer,
+        authorizer: adminAuthorizer,
       }
     );
     api.addRoutes(
@@ -281,6 +309,13 @@ export class MoviesCloudStack extends cdk.Stack {
       integration: getMovieByIdIntegration,
     })
 
+    api.addRoutes(
+        {
+          path: '/rate',
+          methods: [HttpMethod.POST],
+          integration: rateMovieIntegration,
+        }
+    );
     new CfnOutput(this, "ApiEndpoint", {
       value: api.apiEndpoint,
     });

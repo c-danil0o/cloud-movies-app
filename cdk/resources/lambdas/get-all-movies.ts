@@ -7,13 +7,12 @@ import {MovieDto} from "../dto/movie-dto";
 const TABLE_NAME = process.env.TABLE_NAME || '';
 
 async function handler(event: APIGatewayProxyEvent ,context: Context){
-    const db = DynamoDBDocument.from(new DynamoDB());
     try {
         const client = new DynamoDBClient({});
         const docClient = DynamoDBDocumentClient.from(client);
 
         const command = new ScanCommand({
-            ProjectionExpression: "#id, #name, #description, #year, #director, #genre, #duration, #rating, #fileSize, #actors, #episode_number",
+            ProjectionExpression: "#id, #name, #description, #year, #director, #genre, #duration, #rating, #fileSize, #actors, #episode_number, #thumbnail",
             ExpressionAttributeNames: {
                 "#id" :"id",
                 "#name": "name",
@@ -26,6 +25,7 @@ async function handler(event: APIGatewayProxyEvent ,context: Context){
                 "#fileSize": "fileSize",
                 "#actors": "actors",
                 "#episode_number" : "episode_number",
+                "#thumbnail" : "thumbnail"
             },
             TableName: TABLE_NAME,
         });
@@ -45,7 +45,8 @@ async function handler(event: APIGatewayProxyEvent ,context: Context){
                 duration: movie.duration,
                 rating: movie.rating,
                 fileSize: movie.fileSize,
-                actors: movie.actors
+                actors: movie.actors,
+                thumbnail: movie.thumbnail
             });
         }
         console.log(movies);

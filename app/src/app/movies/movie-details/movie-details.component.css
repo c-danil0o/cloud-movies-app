@@ -39,6 +39,7 @@
 
 .movie-footer {
     text-align: center;
+    gap: 20px
 }
 
 .movie-header p-button{
@@ -57,4 +58,34 @@ video {
     width: 100%;
     height: 100%;
     object-fit: contain;
+}
+.review-modal {
+  display: flex;
+  align-items: center;
+  justify-content: center; /* Center horizontally */
+  height: 100%; /* Ensure the flex container takes the full height of the dialog */
+}
+
+.review-modal-rating {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 30px;
+}
+
+.review-modal-rating-star {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 30px;
+  gap: 10px;
+}
+
+.dialog-header{
+  text-align: center;
+  width: 20vw
+}
+
+.p-button-secondary{
+  margin: 10px
 }
