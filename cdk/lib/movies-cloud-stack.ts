@@ -51,6 +51,12 @@ export class MoviesCloudStack extends cdk.Stack {
       projectionType: ProjectionType.ALL,
     });
 
+    const subscriptionsTable = new Table(this, 'SubscriptionsTable', {
+      partitionKey: {name: 'user_id', type: AttributeType.STRING },
+      removalPolicy: RemovalPolicy.DESTROY,
+      billingMode: BillingMode.PAY_PER_REQUEST,
+    })
+
     const s3CorsRule: CorsRule = {
       allowedMethods: [HttpMethods.GET, HttpMethods.HEAD, HttpMethods.POST, HttpMethods.PUT],
       allowedOrigins: ['*'],
@@ -98,6 +104,7 @@ export class MoviesCloudStack extends cdk.Stack {
         PRIMARY_KEY: 'itemId',
         TABLE_NAME: dbTable.tableName,
         RATINGS_TABLE_NAME: ratingsTable.tableName,
+        SUBS_TABLE_NAME: subscriptionsTable.tableName,
         BUCKET_NAME: moviesBucket.bucketName,
       },
       runtime: Runtime.NODEJS_20_X,

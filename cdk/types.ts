@@ -23,3 +23,10 @@ export interface Rating{
   movie_id: string;
   grade: number;
 }
+
+export interface Subscription{
+  user_id: string;
+  genres: string[];
+  actors: string[];
+  directors: string[];
+}
