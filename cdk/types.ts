@@ -20,6 +20,7 @@ export interface Movie {
 export interface Rating{
   id: string;
   user: string;
+  email: string;
   movie_id: string;
   grade: number;
 }

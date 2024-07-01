@@ -1,8 +1,9 @@
 export interface Movie {
   id?: string;
+  upload_status: string;
   name: string;
   description: string;
-  episode_number?:number;
+  episode_number?: number;
   year: number;
   director: string;
   genre: string;
@@ -10,4 +11,8 @@ export interface Movie {
   rating: number;
   fileSize: number;
   actors: string[];
+  created_at: number;
+  modified_at: number;
+  thumbnail: string;
+  search_field?: string;
 }

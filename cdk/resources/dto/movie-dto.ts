@@ -9,5 +9,6 @@ export interface MovieDto {
     duration: number;
     rating: number;
     fileSize: number;
-    actors: string,
+    actors: string;
+    thumbnail: string;
 }

@@ -1,4 +1,4 @@
-import { Component, OnInit} from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Movie } from '../../models/movie';
 
@@ -11,9 +11,11 @@ import {DialogModule} from "primeng/dialog";
 import {RatingModule} from "primeng/rating";
 import {InputTextareaModule} from "primeng/inputtextarea";
 import {Rating} from "../../models/rating";
+import {AuthService} from "../../services/auth.service";
+import {UserInfo} from "../../models/UserInfo";
 
 @Component({
-    selector: 'app-movie-details',
+  selector: 'app-movie-details',
     standalone: true,
   imports: [ButtonModule, FormsModule, CommonModule, DialogModule, RatingModule, InputTextareaModule],
     templateUrl: './movie-details.component.html',
@@ -22,20 +24,17 @@ import {Rating} from "../../models/rating";
 export class MovieDetailsComponent implements OnInit {
 
     movie!: Movie;
-    actors!: string;
     movieRatingVisible: boolean = false;
     movie_rating_value: number = -1;
 
 
-    constructor(private route: ActivatedRoute, private movieService: MovieService) { }
+    constructor(private route: ActivatedRoute, private movieService: MovieService, private authService: AuthService) { }
 
     ngOnInit(): void {
       this.route.params.subscribe(params => {
         this.movieService.getMovieById(params['id']).subscribe({
           next: (data) =>{
             this.movie = data.Item;
-            this.actors = data.Item.actors;
-            this.movie.actors = this.actors.split(",");
           }
         })
       });
@@ -56,16 +55,28 @@ export class MovieDetailsComponent implements OnInit {
     addMovieRate(movie_id: string | undefined){
       if(this.movie_rating_value == -1)
         return
-      const rating: Rating = {
-        user: "b3941822-1091-7039-6a6a-346cb880af6a",
-        movie_id:  movie_id as string,
-        grade: this.movie_rating_value
-      }
-      this.movieService.rateMovie(rating).subscribe({
-        next: (data) =>{console.log(data)},
-        error: (err) => {console.log(err)}
+
+      this.authService.getUserInfo().subscribe({
+        next: (data: UserInfo|null) => {
+          if (data != null){
+            const rating: Rating = {
+              user: data.id,
+              email: data.email,
+              movie_id: movie_id as string,
+              grade: this.movie_rating_value
+            }
+            this.movieService.rateMovie(rating).subscribe({
+              next: (data) =>{console.log(data)},
+              error: (err) => {console.log(err)}
+            })
+            this.movieRatingVisible = false;
+            this.movie_rating_value = -1
+          }
+
+        },
+        error: (err) => console.log(err)
       })
-      this.movieRatingVisible = false;
-      this.movie_rating_value = -1
     }
+
+  protected readonly Math = Math;
 }
