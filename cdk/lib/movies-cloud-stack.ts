@@ -13,20 +13,19 @@ import {
 import { AttributeType, BillingMode, Table, ProjectionType } from 'aws-cdk-lib/aws-dynamodb';
 import { Policy, PolicyStatement } from 'aws-cdk-lib/aws-iam';
 import { Runtime } from 'aws-cdk-lib/aws-lambda';
-import { S3EventSource } from 'aws-cdk-lib/aws-lambda-event-sources';
+import { S3EventSource, SqsEventSource } from 'aws-cdk-lib/aws-lambda-event-sources';
 import { NodejsFunction, NodejsFunctionProps } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { BlockPublicAccess, Bucket, BucketAccessControl, CorsRule, EventType, HttpMethods } from 'aws-cdk-lib/aws-s3';
 import { SqsDestination } from 'aws-cdk-lib/aws-s3-notifications';
 import { Queue } from 'aws-cdk-lib/aws-sqs';
+import { DefinitionBody, JsonPath, Map, StateMachine } from 'aws-cdk-lib/aws-stepfunctions';
+import { LambdaInvoke } from 'aws-cdk-lib/aws-stepfunctions-tasks';
 import { Construct } from 'constructs';
 import { join } from 'path';
 
 export class MoviesCloudStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
-
-
-
 
     const dbTable = new Table(this, 'MoviesTable', {
       partitionKey: { name: 'id', type: AttributeType.STRING },
@@ -54,7 +53,7 @@ export class MoviesCloudStack extends cdk.Stack {
     });
 
     const subscriptionsTable = new Table(this, 'SubscriptionsTable', {
-      partitionKey: {name: 'user_id', type: AttributeType.STRING },
+      partitionKey: { name: 'user_id', type: AttributeType.STRING },
       removalPolicy: RemovalPolicy.DESTROY,
       billingMode: BillingMode.PAY_PER_REQUEST,
     })
@@ -109,6 +108,7 @@ export class MoviesCloudStack extends cdk.Stack {
       },
       runtime: Runtime.NODEJS_20_X,
     }
+
     const downloadMovieLambda = new NodejsFunction(this, 'DownloadLambda', {
       entry: 'resources/lambdas/download.ts',
       handler: 'handler',
@@ -120,12 +120,6 @@ export class MoviesCloudStack extends cdk.Stack {
       handler: 'handler',
       ...nodeJsFunctionProps,
     });
-
-    const updateTableAfterUploadLambda = new NodejsFunction(this, "UpdateTableLambda", {
-      entry: 'resources/lambdas/updateDb.ts',
-      handler: 'handler',
-      ...nodeJsFunctionProps,
-    })
 
 
     const corsOptionsLambda = new NodejsFunction(this, "CorsOptionsLambda", {
@@ -175,11 +169,72 @@ export class MoviesCloudStack extends cdk.Stack {
       ...nodeJsFunctionProps,
     })
 
+    const transcoderLambda = new NodejsFunction(this, 'transcoderLambda', {
+      entry: 'resources/lambdas/transcode.ts',
+      handler: 'handler',
+      ...nodeJsFunctionProps,
+    })
+
+    const updateDbAfterTranscode = new NodejsFunction(this, 'updateDbAfterTranscode', {
+      entry: 'resources/lambdas/updateDb.ts',
+      handler: 'handler',
+      ...nodeJsFunctionProps,
+    })
+
+    const transcodeInvoke = new LambdaInvoke(this, "Transcoder", {
+      lambdaFunction: transcoderLambda,
+      // outputPath: JsonPath.stringAt('$.output')
+    });
+
+    const updateDbInvoke = new LambdaInvoke(this, "Update-DB", {
+      lambdaFunction: updateDbAfterTranscode,
+      // outputPath: JsonPath.stringAt('$.output')
+    });
+
+    const transcodeMapStep = new Map(this, "TranscodeMapStep", {
+      maxConcurrency: 3,
+      itemsPath: JsonPath.stringAt('$.input'),
+      resultPath: "$.transcodeOutput"
+    });
+
+    transcodeMapStep.itemProcessor(transcodeInvoke);
+
+
+    const definition = transcodeMapStep.next(updateDbInvoke);
+
+    const stateMachine = new StateMachine(this, "TranscodeStateMachine", {
+      definitionBody: DefinitionBody.fromChainable(definition),
+      timeout: cdk.Duration.minutes(13),
+      comment: "Transcode state machine"
+    })
+
+
+
+
+
+    const startTranscodingLambda = new NodejsFunction(this, 'StartTranscodingLambda', {
+      entry: 'resources/lambdas/start.ts',
+      handler: 'handler',
+      ...nodeJsFunctionProps,
+      environment: {
+        STATE_MACHINE_ARN: stateMachine.stateMachineArn
+      }
+    })
+    stateMachine.grantStartExecution(startTranscodingLambda);
+
+
+
+
     // moviesBucket.grantPut(uploadMovieLambda)
 
     const queue = new Queue(this, 'S3UploadQueue');
+    const sqsEventSource = new SqsEventSource(queue);
 
     moviesBucket.addEventNotification(EventType.OBJECT_CREATED_PUT, new SqsDestination(queue));
+
+    startTranscodingLambda.addEventSource(sqsEventSource);
+
+
 
     // const notification = new S3EventSource(moviesBucket, {
     //   events: [
@@ -253,7 +308,7 @@ export class MoviesCloudStack extends cdk.Stack {
 
     dbTable.grantReadWriteData(downloadMovieLambda);
     dbTable.grantReadWriteData(uploadMovieLambda);
-    dbTable.grantReadWriteData(updateTableAfterUploadLambda);
+    // dbTable.grantReadWriteData(updateTableAfterUploadLambda);
     dbTable.grantReadWriteData(getAllMoviesLambda);
     dbTable.grantReadWriteData(getMovieByIdLambda);
     ratingsTable.grantReadWriteData(rateMovieLambda);
@@ -294,7 +349,7 @@ export class MoviesCloudStack extends cdk.Stack {
     const getAllMoviesLambdaIntegration = new HttpLambdaIntegration("GetAllMoviesLambdaIntegration", getAllMoviesLambda);
     const getMovieByIdIntegration = new HttpLambdaIntegration("GetMovieByIdIntegration", getMovieByIdLambda);
     const rateMovieIntegration = new HttpLambdaIntegration("RateMovieLambdaIntegration", rateMovieLambda);
-    const subscribeIntegration = new HttpLambdaIntegration("SubscribeIntegration",subscribeLambda);
+    const subscribeIntegration = new HttpLambdaIntegration("SubscribeIntegration", subscribeLambda);
     const getSubscriptionsIntegration = new HttpLambdaIntegration("GetSubscrtiptionsIntegration", getSubscriptionsLambda);
     const unsubscribeIntegration = new HttpLambdaIntegration("UnsubscribeIntegration", unsubscribeLambda);
 
@@ -352,25 +407,25 @@ export class MoviesCloudStack extends cdk.Stack {
       }
     );
     api.addRoutes(
-        {
-          path: '/subscribe',
-          methods: [HttpMethod.POST],
-          integration: subscribeIntegration,
-        }
+      {
+        path: '/subscribe',
+        methods: [HttpMethod.POST],
+        integration: subscribeIntegration,
+      }
     );
     api.addRoutes(
-        {
-          path: '/subscriptions/{id}',
-          methods: [HttpMethod.GET],
-          integration: getSubscriptionsIntegration,
-        }
+      {
+        path: '/subscriptions/{id}',
+        methods: [HttpMethod.GET],
+        integration: getSubscriptionsIntegration,
+      }
     );
     api.addRoutes(
-        {
-          path: '/unsubscribe',
-          methods: [HttpMethod.POST],
-          integration: unsubscribeIntegration,
-        }
+      {
+        path: '/unsubscribe',
+        methods: [HttpMethod.POST],
+        integration: unsubscribeIntegration,
+      }
     );
     new CfnOutput(this, "ApiEndpoint", {
       value: api.apiEndpoint,
