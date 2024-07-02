@@ -66,8 +66,6 @@ export class MoviesCloudStack extends cdk.Stack {
 
     const moviesBucket = new Bucket(this, 'Movies-bucket', {
       bucketName: 'movies-cloud-23010023',
-
-
       blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
       removalPolicy: RemovalPolicy.DESTROY,
       accessControl: BucketAccessControl.PRIVATE,
@@ -164,6 +162,17 @@ export class MoviesCloudStack extends cdk.Stack {
       ...nodeJsFunctionProps,
     })
 
+    const getSubscriptionsLambda = new NodejsFunction(this, 'GetSubscriptionsLambda', {
+      entry: 'resources/lambdas/get-subscriptions.ts',
+      handler: 'handler',
+      ...nodeJsFunctionProps,
+    })
+    const unsubscribeLambda = new NodejsFunction(this, 'UnsubscribeLambda', {
+      entry: 'resources/lambdas/unsubscribe.ts',
+      handler: 'handler',
+      ...nodeJsFunctionProps,
+    })
+
     // moviesBucket.grantPut(uploadMovieLambda)
 
 
@@ -245,6 +254,10 @@ export class MoviesCloudStack extends cdk.Stack {
     dbTable.grantReadWriteData(getMovieByIdLambda);
     ratingsTable.grantReadWriteData(rateMovieLambda);
     subscriptionsTable.grantReadWriteData(subscribeLambda);
+    subscriptionsTable.grantReadWriteData(getSubscriptionsLambda);
+    subscriptionsTable.grantReadWriteData(unsubscribeLambda);
+
+
 
     moviesBucket.grantPutAcl(uploadMovieLambda);
     moviesBucket.grantPut(uploadMovieLambda);
@@ -277,7 +290,10 @@ export class MoviesCloudStack extends cdk.Stack {
     const getAllMoviesLambdaIntegration = new HttpLambdaIntegration("GetAllMoviesLambdaIntegration", getAllMoviesLambda);
     const getMovieByIdIntegration = new HttpLambdaIntegration("GetMovieByIdIntegration", getMovieByIdLambda);
     const rateMovieIntegration = new HttpLambdaIntegration("RateMovieLambdaIntegration", rateMovieLambda);
-    const subscribeIntgration = new HttpLambdaIntegration("SubscribeIntegration",subscribeLambda);
+    const subscribeIntegration = new HttpLambdaIntegration("SubscribeIntegration",subscribeLambda);
+    const getSubscriptionsIntegration = new HttpLambdaIntegration("GetSubscrtiptionsIntegration", getSubscriptionsLambda);
+    const unsubscribeIntegration = new HttpLambdaIntegration("UnsubscribeIntegration", unsubscribeLambda);
+
 
     const adminAuthorizer = new HttpLambdaAuthorizer("AdminAuthorizer", adminAuthorizerLambda, {
       responseTypes: [HttpLambdaResponseType.SIMPLE]
@@ -335,7 +351,21 @@ export class MoviesCloudStack extends cdk.Stack {
         {
           path: '/subscribe',
           methods: [HttpMethod.POST],
-          integration: subscribeIntgration,
+          integration: subscribeIntegration,
+        }
+    );
+    api.addRoutes(
+        {
+          path: '/subscriptions/{id}',
+          methods: [HttpMethod.GET],
+          integration: getSubscriptionsIntegration,
+        }
+    );
+    api.addRoutes(
+        {
+          path: '/unsubscribe',
+          methods: [HttpMethod.POST],
+          integration: unsubscribeIntegration,
         }
     );
     new CfnOutput(this, "ApiEndpoint", {

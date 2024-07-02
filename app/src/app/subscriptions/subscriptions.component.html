@@ -1,19 +1,31 @@
 <div class="tab-container">
   <p-tabView>
     <p-tabPanel header="Genre">
-      <div *ngFor="let genre of genres">
+      <div *ngFor="let genre of user_subscriptions.genres">
         <div class="subscribe-card">
           <h3>{{genre}}</h3>
           <p-button type="button" icon="pi pi-bell-slash" label="UnSubscribe" class="p-button-secondary" [outlined]="true"
-                    (onClick)="unsubscribe()"></p-button>
+                    (onClick)="unsubscribe('genre', genre)"></p-button>
         </div>
       </div>
     </p-tabPanel>
     <p-tabPanel header="Actors">
-      Content 2
+      <div *ngFor="let actor of user_subscriptions.actors">
+        <div class="subscribe-card">
+          <h3>{{actor}}</h3>
+          <p-button type="button" icon="pi pi-bell-slash" label="UnSubscribe" class="p-button-secondary" [outlined]="true"
+                    (onClick)="unsubscribe('actor', actor)"></p-button>
+        </div>
+      </div>
     </p-tabPanel>
     <p-tabPanel header="Directors">
-      Content 3
+      <div *ngFor="let director of user_subscriptions.directors">
+        <div class="subscribe-card">
+          <h3>{{director}}</h3>
+          <p-button type="button" icon="pi pi-bell-slash" label="UnSubscribe" class="p-button-secondary" [outlined]="true"
+                    (onClick)="unsubscribe('director', director)"></p-button>
+        </div>
+      </div>
     </p-tabPanel>
   </p-tabView>
 </div>

@@ -54,4 +54,14 @@ export class MovieService {
     });
   }
 
+  getSubscriptions(user_id: string): Observable<any> {
+    return this.httpClient.get("https://sxui8pte74.execute-api.eu-central-1.amazonaws.com/subscriptions/" + user_id);
+  }
+
+  unsubscribe(sub: Subscription): Observable<any> {
+    return this.httpClient.post("https://sxui8pte74.execute-api.eu-central-1.amazonaws.com/unsubscribe", sub, {
+      headers: this.headers
+    });
+  }
+
 }
