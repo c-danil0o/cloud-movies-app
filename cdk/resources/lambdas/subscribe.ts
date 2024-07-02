@@ -3,6 +3,7 @@ import {Rating, Subscription} from "../../types";
 import {SubscriptionDto} from "../dto/subscription-dto";
 import {DynamoDBDocument} from "@aws-sdk/lib-dynamodb";
 import {DynamoDB} from "@aws-sdk/client-dynamodb";
+import {updateFeedInfo} from "./updateFeedInfo";
 
 
 const SUBS_TABLE_NAME = process.env.SUBS_TABLE_NAME || '';
@@ -29,6 +30,8 @@ async function handler(event: APIGatewayEvent, context: Context){
                     TableName: SUBS_TABLE_NAME,
                     Item: existingSub
                 });
+
+                await updateFeedInfo(user_id, item.type.toLowerCase(), item.value)      //type = npr. Actor, value npr. Dicaprio
 
                 const response: APIGatewayProxyResult = {
                     statusCode: 200,
@@ -57,6 +60,9 @@ async function handler(event: APIGatewayEvent, context: Context){
                 TableName: SUBS_TABLE_NAME,
                 Item: newItem,
             });
+
+            await updateFeedInfo(user_id, item.type.toLowerCase()+'Sub', item.value)      //type = npr. Actor, value npr. Dicaprio
+
             const response: APIGatewayProxyResult = {
                 statusCode: 200,
                 body: JSON.stringify({

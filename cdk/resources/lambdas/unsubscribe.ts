@@ -3,6 +3,7 @@ import {SubscriptionDto} from "../dto/subscription-dto";
 import {DynamoDBDocument} from "@aws-sdk/lib-dynamodb";
 import {DynamoDB} from "@aws-sdk/client-dynamodb";
 import {Subscription} from "../../types";
+import {updateFeedInfo} from "./updateFeedInfo";
 
 const SUBS_TABLE_NAME = process.env.SUBS_TABLE_NAME || '';
 
@@ -42,6 +43,9 @@ async function handler(event: APIGatewayEvent, context: Context){
                 TableName: SUBS_TABLE_NAME,
                 Item: existingSub
             });
+
+            await updateFeedInfo(user_id, item.type.toLowerCase()+'Unsub', item.value)
+
             const response: APIGatewayProxyResult = {
                 statusCode: 200,
                 body: JSON.stringify({

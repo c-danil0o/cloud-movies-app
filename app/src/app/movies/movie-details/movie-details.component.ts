@@ -8,9 +8,7 @@ import { DialogModule } from 'primeng/dialog';
 import { ButtonModule } from 'primeng/button';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import {FileSaverModule} from 'ngx-filesaver'
 
-import { FileSaverService } from 'ngx-filesaver';
 import {RatingModule} from "primeng/rating";
 import {InputTextareaModule} from "primeng/inputtextarea";
 import {Rating} from "../../models/rating";
@@ -22,7 +20,7 @@ import {Subscription} from "../../models/subscription";
 @Component({
   selector: 'app-movie-details',
     standalone: true,
-  imports: [ButtonModule, FormsModule, CommonModule, DialogModule, RatingModule, InputTextareaModule, FileSaverModule],
+  imports: [ButtonModule, FormsModule, CommonModule, DialogModule, RatingModule, InputTextareaModule],
     templateUrl: './movie-details.component.html',
     styleUrls: ['./movie-details.component.css'],
 })
@@ -34,7 +32,7 @@ export class MovieDetailsComponent implements OnInit {
     visible = false;
 
 
-    constructor(private route: ActivatedRoute, private movieService: MovieService, private fileSaverService: FileSaverService, private authService: AuthService) { }
+    constructor(private route: ActivatedRoute, private movieService: MovieService, private authService: AuthService) { }
     movieRatingVisible: boolean = false;
     movie_rating_value: number = -1;
 
@@ -98,7 +96,8 @@ export class MovieDetailsComponent implements OnInit {
               user: data.id,
               email: data.email,
               movie_id: movie_id as string,
-              grade: this.movie_rating_value
+              grade: this.movie_rating_value,
+              genre: this.movie.genre
             }
             this.movieService.rateMovie(rating).subscribe({
               next: (data) =>{console.log(data)},

@@ -4,4 +4,5 @@ export interface Rating {
   movie_id: string;
   grade: number;
   email: string;
+  genre: string;
 }

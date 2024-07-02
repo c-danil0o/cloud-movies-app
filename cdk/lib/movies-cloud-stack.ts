@@ -18,6 +18,7 @@ import {NodejsFunction, NodejsFunctionProps} from 'aws-cdk-lib/aws-lambda-nodejs
 import {BlockPublicAccess, Bucket, BucketAccessControl, CorsRule, EventType, HttpMethods} from 'aws-cdk-lib/aws-s3';
 import {Construct} from 'constructs';
 import {join} from 'path';
+import * as path from "node:path";
 
 export class MoviesCloudStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
@@ -55,7 +56,13 @@ export class MoviesCloudStack extends cdk.Stack {
       partitionKey: {name: 'user_id', type: AttributeType.STRING },
       removalPolicy: RemovalPolicy.DESTROY,
       billingMode: BillingMode.PAY_PER_REQUEST,
-    })
+    });
+
+    const feedInfoTable = new Table(this, 'FeedInfoTable', {
+      partitionKey: {name: 'user_id', type: AttributeType.STRING },
+      removalPolicy: RemovalPolicy.DESTROY,
+      billingMode: BillingMode.PAY_PER_REQUEST,
+    });
 
     const s3CorsRule: CorsRule = {
       allowedMethods: [HttpMethods.GET, HttpMethods.HEAD, HttpMethods.POST, HttpMethods.PUT],
@@ -103,10 +110,12 @@ export class MoviesCloudStack extends cdk.Stack {
         TABLE_NAME: dbTable.tableName,
         RATINGS_TABLE_NAME: ratingsTable.tableName,
         SUBS_TABLE_NAME: subscriptionsTable.tableName,
+        FEED_TABLE_NAME: feedInfoTable.tableName,
         BUCKET_NAME: moviesBucket.bucketName,
       },
       runtime: Runtime.NODEJS_20_X,
     }
+
     const downloadMovieLambda = new NodejsFunction(this, 'DownloadLambda', {
       entry: 'resources/lambdas/download.ts',
       handler: 'handler',
@@ -153,14 +162,22 @@ export class MoviesCloudStack extends cdk.Stack {
     const rateMovieLambda = new NodejsFunction(this, "RateMovieLambda", {
       entry: 'resources/lambdas/rate-movie.ts',
       handler: 'handler',
+      bundling: {
+        nodeModules: ['resources/lambdas/updateFeedInfo.ts'], // Example of local module path
+      },
       ...nodeJsFunctionProps,
     })
 
     const subscribeLambda = new NodejsFunction(this, "SubscribeLambda", {
       entry: 'resources/lambdas/subscribe.ts',
       handler: 'handler',
+      bundling: {
+        nodeModules: ['resources/'], // Example of local module path
+      },
       ...nodeJsFunctionProps,
     })
+
+
 
     const getSubscriptionsLambda = new NodejsFunction(this, 'GetSubscriptionsLambda', {
       entry: 'resources/lambdas/get-subscriptions.ts',
@@ -256,7 +273,9 @@ export class MoviesCloudStack extends cdk.Stack {
     subscriptionsTable.grantReadWriteData(subscribeLambda);
     subscriptionsTable.grantReadWriteData(getSubscriptionsLambda);
     subscriptionsTable.grantReadWriteData(unsubscribeLambda);
-
+    feedInfoTable.grantReadWriteData(rateMovieLambda);
+    feedInfoTable.grantReadWriteData(subscribeLambda);
+    feedInfoTable.grantReadWriteData(unsubscribeLambda);
 
 
     moviesBucket.grantPutAcl(uploadMovieLambda);

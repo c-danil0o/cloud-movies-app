@@ -3,6 +3,7 @@ import {Rating} from "../../types";
 import {DynamoDBDocument} from "@aws-sdk/lib-dynamodb";
 import {DynamoDB} from "@aws-sdk/client-dynamodb";
 import {randomUUID} from "crypto";
+import {updateFeedInfo} from "./updateFeedInfo";
 
 
 const RATINGS_TABLE_NAME = process.env.RATINGS_TABLE_NAME || '';
@@ -44,6 +45,15 @@ async function handler(event: APIGatewayEvent, context: Context){
         };
         await db.put(params);
 
+
+        if(item.grade>2){
+            console.log("POZIVAM GAAAA");
+            console.log("POZIVAM GAAAA");
+            console.log("POZIVAM GAAAA");
+
+            await updateFeedInfo(item.user, String(item.grade), item.genre);
+        }
+
         const response: APIGatewayProxyResult = {
             statusCode: 200,
             body: JSON.stringify({item})
@@ -56,6 +66,7 @@ async function handler(event: APIGatewayEvent, context: Context){
     }
 
 }
+
 
 
 
