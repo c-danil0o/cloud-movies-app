@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { Movie } from '../models/movie';
 import { UploadUrl } from '../models/upload_url';
 import {Rating} from "../models/rating";
+import {Subscription} from "../models/subscription";
 
 @Injectable({
   providedIn: 'root'
@@ -46,4 +47,21 @@ export class MovieService {
       headers: this.headers
     });
   }
+
+  subscribe(sub: Subscription): Observable<any> {
+    return this.httpClient.post("https://sxui8pte74.execute-api.eu-central-1.amazonaws.com/subscribe", sub, {
+      headers: this.headers
+    });
+  }
+
+  getSubscriptions(user_id: string): Observable<any> {
+    return this.httpClient.get("https://sxui8pte74.execute-api.eu-central-1.amazonaws.com/subscriptions/" + user_id);
+  }
+
+  unsubscribe(sub: Subscription): Observable<any> {
+    return this.httpClient.post("https://sxui8pte74.execute-api.eu-central-1.amazonaws.com/unsubscribe", sub, {
+      headers: this.headers
+    });
+  }
+
 }

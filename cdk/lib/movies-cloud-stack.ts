@@ -51,6 +51,12 @@ export class MoviesCloudStack extends cdk.Stack {
       projectionType: ProjectionType.ALL,
     });
 
+    const subscriptionsTable = new Table(this, 'SubscriptionsTable', {
+      partitionKey: {name: 'user_id', type: AttributeType.STRING },
+      removalPolicy: RemovalPolicy.DESTROY,
+      billingMode: BillingMode.PAY_PER_REQUEST,
+    })
+
     const s3CorsRule: CorsRule = {
       allowedMethods: [HttpMethods.GET, HttpMethods.HEAD, HttpMethods.POST, HttpMethods.PUT],
       allowedOrigins: ['*'],
@@ -60,8 +66,6 @@ export class MoviesCloudStack extends cdk.Stack {
 
     const moviesBucket = new Bucket(this, 'Movies-bucket', {
       bucketName: 'movies-cloud-23010023',
-
-
       blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
       removalPolicy: RemovalPolicy.DESTROY,
       accessControl: BucketAccessControl.PRIVATE,
@@ -98,6 +102,7 @@ export class MoviesCloudStack extends cdk.Stack {
         PRIMARY_KEY: 'itemId',
         TABLE_NAME: dbTable.tableName,
         RATINGS_TABLE_NAME: ratingsTable.tableName,
+        SUBS_TABLE_NAME: subscriptionsTable.tableName,
         BUCKET_NAME: moviesBucket.bucketName,
       },
       runtime: Runtime.NODEJS_20_X,
@@ -147,6 +152,23 @@ export class MoviesCloudStack extends cdk.Stack {
 
     const rateMovieLambda = new NodejsFunction(this, "RateMovieLambda", {
       entry: 'resources/lambdas/rate-movie.ts',
+      handler: 'handler',
+      ...nodeJsFunctionProps,
+    })
+
+    const subscribeLambda = new NodejsFunction(this, "SubscribeLambda", {
+      entry: 'resources/lambdas/subscribe.ts',
+      handler: 'handler',
+      ...nodeJsFunctionProps,
+    })
+
+    const getSubscriptionsLambda = new NodejsFunction(this, 'GetSubscriptionsLambda', {
+      entry: 'resources/lambdas/get-subscriptions.ts',
+      handler: 'handler',
+      ...nodeJsFunctionProps,
+    })
+    const unsubscribeLambda = new NodejsFunction(this, 'UnsubscribeLambda', {
+      entry: 'resources/lambdas/unsubscribe.ts',
       handler: 'handler',
       ...nodeJsFunctionProps,
     })
@@ -231,6 +253,11 @@ export class MoviesCloudStack extends cdk.Stack {
     dbTable.grantReadWriteData(getAllMoviesLambda);
     dbTable.grantReadWriteData(getMovieByIdLambda);
     ratingsTable.grantReadWriteData(rateMovieLambda);
+    subscriptionsTable.grantReadWriteData(subscribeLambda);
+    subscriptionsTable.grantReadWriteData(getSubscriptionsLambda);
+    subscriptionsTable.grantReadWriteData(unsubscribeLambda);
+
+
 
     moviesBucket.grantPutAcl(uploadMovieLambda);
     moviesBucket.grantPut(uploadMovieLambda);
@@ -263,6 +290,10 @@ export class MoviesCloudStack extends cdk.Stack {
     const getAllMoviesLambdaIntegration = new HttpLambdaIntegration("GetAllMoviesLambdaIntegration", getAllMoviesLambda);
     const getMovieByIdIntegration = new HttpLambdaIntegration("GetMovieByIdIntegration", getMovieByIdLambda);
     const rateMovieIntegration = new HttpLambdaIntegration("RateMovieLambdaIntegration", rateMovieLambda);
+    const subscribeIntegration = new HttpLambdaIntegration("SubscribeIntegration",subscribeLambda);
+    const getSubscriptionsIntegration = new HttpLambdaIntegration("GetSubscrtiptionsIntegration", getSubscriptionsLambda);
+    const unsubscribeIntegration = new HttpLambdaIntegration("UnsubscribeIntegration", unsubscribeLambda);
+
 
     const adminAuthorizer = new HttpLambdaAuthorizer("AdminAuthorizer", adminAuthorizerLambda, {
       responseTypes: [HttpLambdaResponseType.SIMPLE]
@@ -314,6 +345,27 @@ export class MoviesCloudStack extends cdk.Stack {
           path: '/rate',
           methods: [HttpMethod.POST],
           integration: rateMovieIntegration,
+        }
+    );
+    api.addRoutes(
+        {
+          path: '/subscribe',
+          methods: [HttpMethod.POST],
+          integration: subscribeIntegration,
+        }
+    );
+    api.addRoutes(
+        {
+          path: '/subscriptions/{id}',
+          methods: [HttpMethod.GET],
+          integration: getSubscriptionsIntegration,
+        }
+    );
+    api.addRoutes(
+        {
+          path: '/unsubscribe',
+          methods: [HttpMethod.POST],
+          integration: unsubscribeIntegration,
         }
     );
     new CfnOutput(this, "ApiEndpoint", {

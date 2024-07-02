@@ -16,6 +16,7 @@ import {InputTextareaModule} from "primeng/inputtextarea";
 import {Rating} from "../../models/rating";
 import {AuthService} from "../../services/auth.service";
 import {UserInfo} from "../../models/UserInfo";
+import {Subscription} from "../../models/subscription";
 
 
 @Component({
@@ -42,6 +43,7 @@ export class MovieDetailsComponent implements OnInit {
         this.movieId = params['id'];
         this.movieService.getMovieById(this.movieId).subscribe({
           next: (data) =>{
+            console.log(data.Item);
             this.movie = data.Item;
           }
         })
@@ -112,4 +114,26 @@ export class MovieDetailsComponent implements OnInit {
     }
 
   protected readonly Math = Math;
+
+    subscribe(type: string, value: string){
+      this.authService.getUserInfo().subscribe({
+        next: (data: UserInfo|null) => {
+          if (data != null){
+            const sub: Subscription = {
+              user_id: data.id,
+              email: data.email,
+              type: type,
+              value: value
+            }
+            this.movieService.subscribe(sub).subscribe({
+              next: (data) =>{console.log(data)},
+              error: (err) => {console.log(err)}
+            })
+          }
+
+        },
+        error: (err) => console.log(err)
+      })
+    }
+
 }
