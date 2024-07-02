@@ -200,6 +200,9 @@ export class AuthService {
   getUserInfo():Observable<UserInfo|null>{
     return this.getSession().pipe(switchMap((session) => {
       if (session != null) {
+        console.log(session.getAccessToken());
+        console.log(session.getIdToken());
+
         let userInfo: UserInfo = {
           id: session.getAccessToken().decodePayload()['sub'],
           email: session.getAccessToken().decodePayload()['email']

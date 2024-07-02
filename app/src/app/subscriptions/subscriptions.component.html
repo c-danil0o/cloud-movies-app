@@ -1,0 +1,20 @@
+<div class="tab-container">
+  <p-tabView>
+    <p-tabPanel header="Genre">
+      <div *ngFor="let genre of genres">
+        <div class="subscribe-card">
+          <h3>{{genre}}</h3>
+          <p-button type="button" icon="pi pi-bell-slash" label="UnSubscribe" class="p-button-secondary" [outlined]="true"
+                    (onClick)="unsubscribe()"></p-button>
+        </div>
+      </div>
+    </p-tabPanel>
+    <p-tabPanel header="Actors">
+      Content 2
+    </p-tabPanel>
+    <p-tabPanel header="Directors">
+      Content 3
+    </p-tabPanel>
+  </p-tabView>
+</div>
+

@@ -37,6 +37,13 @@
     margin-bottom: 20px;
 }
 
+.item-sub-pair{
+  display: flex;
+  flex-direction: row;
+  padding: 0;
+  margin: 0;
+}
+
 .movie-footer {
     text-align: center;
     gap: 20px
@@ -75,4 +82,17 @@
 
 .p-button-secondary{
   margin: 10px
+}
+
+.p-button-sub{
+  font-size: 20px;
+  padding: 0;
+  margin-left: 10px;
+  margin-top: 10px;
+  height: fit-content;
+  width: fit-content;
+  align-items: center;
+  color: #adadea;
+  background-color: transparent;
+  border-color: transparent;
 }

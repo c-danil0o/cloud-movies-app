@@ -158,6 +158,12 @@ export class MoviesCloudStack extends cdk.Stack {
       ...nodeJsFunctionProps,
     })
 
+    const subscribeLambda = new NodejsFunction(this, "SubscribeLambda", {
+      entry: 'resources/lambdas/subscribe.ts',
+      handler: 'handler',
+      ...nodeJsFunctionProps,
+    })
+
     // moviesBucket.grantPut(uploadMovieLambda)
 
 
@@ -238,6 +244,7 @@ export class MoviesCloudStack extends cdk.Stack {
     dbTable.grantReadWriteData(getAllMoviesLambda);
     dbTable.grantReadWriteData(getMovieByIdLambda);
     ratingsTable.grantReadWriteData(rateMovieLambda);
+    subscriptionsTable.grantReadWriteData(subscribeLambda);
 
     moviesBucket.grantPutAcl(uploadMovieLambda);
     moviesBucket.grantPut(uploadMovieLambda);
@@ -270,6 +277,7 @@ export class MoviesCloudStack extends cdk.Stack {
     const getAllMoviesLambdaIntegration = new HttpLambdaIntegration("GetAllMoviesLambdaIntegration", getAllMoviesLambda);
     const getMovieByIdIntegration = new HttpLambdaIntegration("GetMovieByIdIntegration", getMovieByIdLambda);
     const rateMovieIntegration = new HttpLambdaIntegration("RateMovieLambdaIntegration", rateMovieLambda);
+    const subscribeIntgration = new HttpLambdaIntegration("SubscribeIntegration",subscribeLambda);
 
     const adminAuthorizer = new HttpLambdaAuthorizer("AdminAuthorizer", adminAuthorizerLambda, {
       responseTypes: [HttpLambdaResponseType.SIMPLE]
@@ -321,6 +329,13 @@ export class MoviesCloudStack extends cdk.Stack {
           path: '/rate',
           methods: [HttpMethod.POST],
           integration: rateMovieIntegration,
+        }
+    );
+    api.addRoutes(
+        {
+          path: '/subscribe',
+          methods: [HttpMethod.POST],
+          integration: subscribeIntgration,
         }
     );
     new CfnOutput(this, "ApiEndpoint", {

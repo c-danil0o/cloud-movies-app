@@ -27,6 +27,7 @@ export interface Rating{
 
 export interface Subscription{
   user_id: string;
+  email: string;
   genres: string[];
   actors: string[];
   directors: string[];
