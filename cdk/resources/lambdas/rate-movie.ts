@@ -30,7 +30,6 @@ async function handler(event: APIGatewayEvent, context: Context){
         const { Items } = await db.query(checkParams);
         console.log(Items)
         if (Items && Items.length > 0) {
-            // User has already rated this movie
             return {
                 statusCode: 400,
                 body: JSON.stringify({ message: 'User has already rated this movie' })

@@ -1,0 +1,44 @@
+.p-tabview-nav {
+  display: flex;
+  justify-content: center;
+  gap: 10px; /* Space between tabs */
+}
+
+.p-tabview-nav li {
+  flex: 1 1 auto;
+  text-align: center;
+  border: 1px solid #ccc;
+  background-color: #f0f0f0;
+  padding: 10px 0;
+  list-style-type: none;
+  max-width: 33%;
+}
+
+.p-tabview-nav .p-highlight {
+  background-color: #fff;
+  border-bottom: 1px solid transparent;
+}
+
+.tab-container{
+  margin: 30px
+}
+
+.subscribe-card{
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+}
+
+.subscribe-card h3{
+  width: 20%;
+}
+
+.p-button-secondary{
+  margin-top: 11px;
+  margin-left: 10px;
+  width: fit-content;
+  height: fit-content;
+}
+
+
+
