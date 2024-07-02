@@ -1,8 +1,8 @@
 import * as cdk from 'aws-cdk-lib';
-import {CfnOutput, RemovalPolicy} from 'aws-cdk-lib';
-import {CorsHttpMethod, HttpApi, HttpMethod} from 'aws-cdk-lib/aws-apigatewayv2';
-import {HttpLambdaAuthorizer, HttpLambdaResponseType} from 'aws-cdk-lib/aws-apigatewayv2-authorizers';
-import {HttpLambdaIntegration} from 'aws-cdk-lib/aws-apigatewayv2-integrations';
+import { CfnOutput, RemovalPolicy } from 'aws-cdk-lib';
+import { CorsHttpMethod, HttpApi, HttpMethod } from 'aws-cdk-lib/aws-apigatewayv2';
+import { HttpLambdaAuthorizer, HttpLambdaResponseType } from 'aws-cdk-lib/aws-apigatewayv2-authorizers';
+import { HttpLambdaIntegration } from 'aws-cdk-lib/aws-apigatewayv2-integrations';
 import {
   AccountRecovery,
   CfnUserPoolGroup,
@@ -10,14 +10,16 @@ import {
   UserPoolClientIdentityProvider,
   VerificationEmailStyle
 } from 'aws-cdk-lib/aws-cognito';
-import {AttributeType, BillingMode, Table, ProjectionType} from 'aws-cdk-lib/aws-dynamodb';
-import {Policy, PolicyStatement} from 'aws-cdk-lib/aws-iam';
-import {Runtime} from 'aws-cdk-lib/aws-lambda';
-import {S3EventSource} from 'aws-cdk-lib/aws-lambda-event-sources';
-import {NodejsFunction, NodejsFunctionProps} from 'aws-cdk-lib/aws-lambda-nodejs';
-import {BlockPublicAccess, Bucket, BucketAccessControl, CorsRule, EventType, HttpMethods} from 'aws-cdk-lib/aws-s3';
-import {Construct} from 'constructs';
-import {join} from 'path';
+import { AttributeType, BillingMode, Table, ProjectionType } from 'aws-cdk-lib/aws-dynamodb';
+import { Policy, PolicyStatement } from 'aws-cdk-lib/aws-iam';
+import { Runtime } from 'aws-cdk-lib/aws-lambda';
+import { S3EventSource } from 'aws-cdk-lib/aws-lambda-event-sources';
+import { NodejsFunction, NodejsFunctionProps } from 'aws-cdk-lib/aws-lambda-nodejs';
+import { BlockPublicAccess, Bucket, BucketAccessControl, CorsRule, EventType, HttpMethods } from 'aws-cdk-lib/aws-s3';
+import { SqsDestination } from 'aws-cdk-lib/aws-s3-notifications';
+import { Queue } from 'aws-cdk-lib/aws-sqs';
+import { Construct } from 'constructs';
+import { join } from 'path';
 
 export class MoviesCloudStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
@@ -139,7 +141,7 @@ export class MoviesCloudStack extends cdk.Stack {
       ...nodeJsFunctionProps,
     })
 
-    const getMovieByIdLambda = new NodejsFunction(this, "GetMovieByIdLambda",{
+    const getMovieByIdLambda = new NodejsFunction(this, "GetMovieByIdLambda", {
       entry: 'resources/lambdas/get-movie-by-id.ts',
       handler: 'handler',
       ...nodeJsFunctionProps
@@ -153,13 +155,15 @@ export class MoviesCloudStack extends cdk.Stack {
 
     // moviesBucket.grantPut(uploadMovieLambda)
 
+    const queue = new Queue(this, 'S3UploadQueue');
 
+    moviesBucket.addEventNotification(EventType.OBJECT_CREATED_PUT, new SqsDestination(queue));
 
-    const notification = new S3EventSource(moviesBucket, {
-      events: [
-        EventType.OBJECT_CREATED_PUT
-      ]
-    });
+    // const notification = new S3EventSource(moviesBucket, {
+    //   events: [
+    //     EventType.OBJECT_CREATED_PUT
+    //   ]
+    // });
 
     const userPool = new UserPool(this, "UserPool", {
       removalPolicy: cdk.RemovalPolicy.DESTROY,
@@ -223,7 +227,7 @@ export class MoviesCloudStack extends cdk.Stack {
       userPoolId: userPool.userPoolId
     })
 
-    updateTableAfterUploadLambda.addEventSource(notification);
+    // updateTableAfterUploadLambda.addEventSource(notification);
 
     dbTable.grantReadWriteData(downloadMovieLambda);
     dbTable.grantReadWriteData(uploadMovieLambda);
@@ -297,11 +301,11 @@ export class MoviesCloudStack extends cdk.Stack {
       }
     );
     api.addRoutes(
-        {
-          path: '/all',
-          methods: [HttpMethod.GET],
-          integration: getAllMoviesLambdaIntegration,
-        }
+      {
+        path: '/all',
+        methods: [HttpMethod.GET],
+        integration: getAllMoviesLambdaIntegration,
+      }
     );
     api.addRoutes({
       path: '/movie/{id}',
@@ -310,11 +314,11 @@ export class MoviesCloudStack extends cdk.Stack {
     })
 
     api.addRoutes(
-        {
-          path: '/rate',
-          methods: [HttpMethod.POST],
-          integration: rateMovieIntegration,
-        }
+      {
+        path: '/rate',
+        methods: [HttpMethod.POST],
+        integration: rateMovieIntegration,
+      }
     );
     new CfnOutput(this, "ApiEndpoint", {
       value: api.apiEndpoint,
