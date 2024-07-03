@@ -1,6 +1,8 @@
 import { APIGatewayProxyEvent, Context, APIGatewayProxyResult } from "aws-lambda";
 import { GetObjectCommand, S3Client } from '@aws-sdk/client-s3'
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import {SubscriptionDto} from "../../dto/subscription-dto";
+import {updateFeedInfo} from "./update-feed-info";
 
 // @ts-ignore
 async function handler(event: APIGatewayProxyEvent, context: Context) {
@@ -11,6 +13,7 @@ async function handler(event: APIGatewayProxyEvent, context: Context) {
   if (!requestedItemId) {
     return { statusCode: 400, body: `Error: You are missing the path parameter id` };
   }
+  const item = typeof event.body == 'object' ? event.body : JSON.parse(event.body) as SubscriptionDto;
 
   try {
 
@@ -21,8 +24,8 @@ async function handler(event: APIGatewayProxyEvent, context: Context) {
     const command = new GetObjectCommand({ Bucket: bucket, Key: key });
 
     const signedUrl = await getSignedUrl(client, command, { expiresIn: 500 });
-
-
+    if(item)
+      await updateFeedInfo(item.user_id, item.type, item.value);
     const response: APIGatewayProxyResult = {
       statusCode: 200,
       headers: {

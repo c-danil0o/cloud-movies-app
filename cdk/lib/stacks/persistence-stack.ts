@@ -9,6 +9,7 @@ export class PersistenceStack extends cdk.Stack {
   moviesBucket: Bucket;
   ratingsTable: Table;
   subscriptionsTable: Table;
+  feedInfoTable: Table;
 
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
@@ -43,6 +44,12 @@ export class PersistenceStack extends cdk.Stack {
       removalPolicy: RemovalPolicy.DESTROY,
       billingMode: BillingMode.PAY_PER_REQUEST,
     })
+
+    this.feedInfoTable = new Table(this, 'FeedInfoTable', {
+      partitionKey: {name: 'user_id', type: AttributeType.STRING },
+      removalPolicy: RemovalPolicy.DESTROY,
+      billingMode: BillingMode.PAY_PER_REQUEST,
+    });
 
     const s3CorsRule: CorsRule = {
       allowedMethods: [HttpMethods.GET, HttpMethods.HEAD, HttpMethods.POST, HttpMethods.PUT],

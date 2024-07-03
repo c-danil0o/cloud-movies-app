@@ -3,6 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { Movie } from '../../models/movie'
 import { AuthService } from "../../services/auth.service";
 import { MovieService } from "../../services/movie.service";
+import {SubscriptionAndFeedInfo} from "../../models/subscription_and_feed_info";
 
 @Component({
   selector: 'app-movies-catalog',
@@ -31,14 +32,27 @@ addMovie() {
   this.router.navigate(['/add-movie'])
 }
 loadMovies(){
-  this.movieService.getAllMovies().subscribe({
-    next: (data) => {
-      console.log(data.Movies)
-      this.movies = data.Movies;
-
+  this.authService.getUserInfo().subscribe({
+    next: (data) =>{
+      if (data != null){
+        this.movieService.getPersonalizedFeed(data.id).subscribe({
+          next: (data) =>{
+            console.log(data.Movies)
+            this.movies = data.Movies;
+          }
+        })
+      }
     },
-    error: (err) => console.log(err)
+    error: err => console.log(err)
   })
+  // this.movieService.getAllMovies().subscribe({
+  //   next: (data) => {
+  //     console.log(data.Movies)
+  //     this.movies = data.Movies;
+  //
+  //   },
+  //   error: (err) => console.log(err)
+  // })
 }
 
 }

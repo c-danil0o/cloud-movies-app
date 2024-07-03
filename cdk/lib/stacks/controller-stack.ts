@@ -13,6 +13,7 @@ export interface ControllerProps extends cdk.StackProps {
   moviesBucket: Bucket,
   subscriptionsTable: Table,
   ratingsTable: Table,
+  feedInfoTable: Table,
   adminAuthorizer: HttpLambdaAuthorizer,
   userAuthorizer: HttpLambdaAuthorizer
 
@@ -26,6 +27,7 @@ export class ControllerStack extends cdk.Stack {
     const moviesBucket = props?.moviesBucket;
     const ratingsTable = props?.ratingsTable;
     const subscriptionsTable = props?.subscriptionsTable;
+    const feedInfoTable = props?.feedInfoTable;
     const adminAuthorizer = props?.adminAuthorizer;
     const userAuthorizer = props?.userAuthorizer;
 
@@ -60,6 +62,7 @@ export class ControllerStack extends cdk.Stack {
         TABLE_NAME: dbTable.tableName,
         RATINGS_TABLE_NAME: ratingsTable.tableName,
         SUBS_TABLE_NAME: subscriptionsTable.tableName,
+        FEED_TABLE_NAME: feedInfoTable.tableName,
         BUCKET_NAME: moviesBucket.bucketName,
       },
       runtime: Runtime.NODEJS_20_X,
@@ -98,12 +101,18 @@ export class ControllerStack extends cdk.Stack {
     const rateMovieLambda = new NodejsFunction(this, "RateMovieLambda", {
       entry: 'resources/lambda/movie/rate-movie.ts',
       handler: 'handler',
+      bundling: {
+        nodeModules: [], // Example of local module path
+      },
       ...nodeJsFunctionProps,
     })
 
     const subscribeLambda = new NodejsFunction(this, "SubscribeLambda", {
       entry: 'resources/lambda/movie/subscribe.ts',
       handler: 'handler',
+      bundling: {
+        nodeModules: [], // Example of local module path
+      },
       ...nodeJsFunctionProps,
     })
 
@@ -115,19 +124,37 @@ export class ControllerStack extends cdk.Stack {
     const unsubscribeLambda = new NodejsFunction(this, 'UnsubscribeLambda', {
       entry: 'resources/lambda/movie/unsubscribe.ts',
       handler: 'handler',
+      bundling: {
+        nodeModules: [], // Example of local module path
+      },
       ...nodeJsFunctionProps,
     })
+    const getPersonalizedFeedLambda = new NodejsFunction(this, 'GetPersonalizedFeedLambda', {
+      entry: 'resources/lambda/movie/get-personalized-feed.ts',
+      handler: 'handler',
+      ...nodeJsFunctionProps,
+    })
+
 
     dbTable.grantReadWriteData(downloadMovieLambda);
     dbTable.grantReadWriteData(uploadMovieLambda);
     dbTable.grantReadWriteData(getAllMoviesLambda);
     dbTable.grantReadWriteData(getMovieByIdLambda);
+    dbTable.grantReadWriteData(getPersonalizedFeedLambda);
 
     ratingsTable.grantReadWriteData(rateMovieLambda);
 
     subscriptionsTable.grantReadWriteData(subscribeLambda);
     subscriptionsTable.grantReadWriteData(getSubscriptionsLambda);
     subscriptionsTable.grantReadWriteData(unsubscribeLambda);
+
+    feedInfoTable.grantReadWriteData(rateMovieLambda);
+    feedInfoTable.grantReadWriteData(subscribeLambda);
+    feedInfoTable.grantReadWriteData(unsubscribeLambda);
+    feedInfoTable.grantReadWriteData(downloadMovieLambda);
+    feedInfoTable.grantReadWriteData(getPersonalizedFeedLambda);
+    
+
 
     moviesBucket.grantPutAcl(uploadMovieLambda);
     moviesBucket.grantPut(uploadMovieLambda);
@@ -144,15 +171,14 @@ export class ControllerStack extends cdk.Stack {
     const subscribeIntegration = new HttpLambdaIntegration("SubscribeIntegration", subscribeLambda);
     const getSubscriptionsIntegration = new HttpLambdaIntegration("GetSubscrtiptionsIntegration", getSubscriptionsLambda);
     const unsubscribeIntegration = new HttpLambdaIntegration("UnsubscribeIntegration", unsubscribeLambda);
-
+    const getPersonalizedFeedIntegration = new HttpLambdaIntegration("GetPersonalizedFeedIntgration", getPersonalizedFeedLambda);
 
 
     api.addRoutes(
       {
         path: '/download/{id}',
-        methods: [HttpMethod.GET],
+        methods: [HttpMethod.POST],
         integration: downloadLamdaIntegration,
-        authorizer: adminAuthorizer,
       });
     api.addRoutes(
       {
@@ -209,6 +235,13 @@ export class ControllerStack extends cdk.Stack {
         methods: [HttpMethod.POST],
         integration: unsubscribeIntegration,
       }
+    );
+    api.addRoutes(
+        {
+          path: '/feed/{user_id}',
+          methods: [HttpMethod.GET],
+          integration: getPersonalizedFeedIntegration,
+        }
     );
     new CfnOutput(this, "ApiEndpoint", {
       value: api.apiEndpoint,

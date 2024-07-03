@@ -16,7 +16,8 @@ import {InputTextareaModule} from "primeng/inputtextarea";
 import {Rating} from "../../models/rating";
 import {AuthService} from "../../services/auth.service";
 import {UserInfo} from "../../models/UserInfo";
-import {Subscription} from "../../models/subscription";
+import {SubscriptionAndFeedInfo} from "../../models/subscription_and_feed_info";
+import {MessageService} from "primeng/api";
 
 
 @Component({
@@ -34,7 +35,7 @@ export class MovieDetailsComponent implements OnInit {
     visible = false;
 
 
-    constructor(private route: ActivatedRoute, private movieService: MovieService, private fileSaverService: FileSaverService, private authService: AuthService) { }
+    constructor(private route: ActivatedRoute, private movieService: MovieService, private fileSaverService: FileSaverService, private authService: AuthService, private messageService: MessageService) { }
     movieRatingVisible: boolean = false;
     movie_rating_value: number = -1;
 
@@ -65,22 +66,51 @@ export class MovieDetailsComponent implements OnInit {
     }
 
     download(){
-      this.movieService.getDownloadUrl(this.movieId).subscribe({
+      this.authService.getUserInfo().subscribe({
         next: (data) =>{
-          console.log(data.url);
-          this.videoUrl = data.url;
-          this.downloadFile(this.videoUrl);
-        }
-      });
+          if (data != null){
+            const downloadInfo : SubscriptionAndFeedInfo= {
+              user_id: data.id,
+              email: data.email,
+              type: "download",
+              value: this.movie.genre
+            };
+            this.movieService.getDownloadUrl(this.movieId, downloadInfo).subscribe({
+              next: (data) =>{
+                console.log(data.url);
+                this.videoUrl = data.url;
+                this.downloadFile(this.videoUrl);
+              }
+            });
+          }
+        },
+        error: err => console.log(err)
+      })
+
+
     }
 
     play(){
       this.visible=true;
-      this.movieService.getDownloadUrl(this.movieId).subscribe({
+      this.authService.getUserInfo().subscribe({
         next: (data) =>{
-          this.videoUrl = data.url;
-        }
-      });
+          if (data != null){
+            const downloadInfo : SubscriptionAndFeedInfo= {
+              user_id: data.id,
+              email: data.email,
+              type: "download",
+              value: this.movie.genre
+            };
+            this.movieService.getDownloadUrl(this.movieId, downloadInfo).subscribe({
+              next: (data) =>{
+                this.videoUrl = data.url;
+              }
+            });
+          }
+        },
+        error: err => console.log(err)
+      })
+
     }
 
     showRateDialog(){
@@ -98,11 +128,28 @@ export class MovieDetailsComponent implements OnInit {
               user: data.id,
               email: data.email,
               movie_id: movie_id as string,
-              grade: this.movie_rating_value
+              grade: this.movie_rating_value,
+              genre: this.movie.genre
             }
             this.movieService.rateMovie(rating).subscribe({
-              next: (data) =>{console.log(data)},
-              error: (err) => {console.log(err)}
+              next: (data) =>{
+                this.messageService.add({
+                  severity: 'success',
+                  summary: 'Success',
+                  key: 'bc',
+                  detail: 'Successfully rated movie!',
+                  life: 2000
+                })
+                console.log(data)},
+              error: (err) => {
+                this.messageService.add({
+                  severity: 'error',
+                  summary: 'Error',
+                  key: 'bc',
+                  detail: 'Already rated this movie!',
+                  life: 2000
+                })
+                console.log(err)}
             })
             this.movieRatingVisible = false;
             this.movie_rating_value = -1
@@ -119,15 +166,31 @@ export class MovieDetailsComponent implements OnInit {
       this.authService.getUserInfo().subscribe({
         next: (data: UserInfo|null) => {
           if (data != null){
-            const sub: Subscription = {
+            const sub: SubscriptionAndFeedInfo = {
               user_id: data.id,
               email: data.email,
               type: type,
               value: value
             }
             this.movieService.subscribe(sub).subscribe({
-              next: (data) =>{console.log(data)},
-              error: (err) => {console.log(err)}
+              next: (data) =>{
+                this.messageService.add({
+                  severity: 'success',
+                  summary: 'Success',
+                  key: 'bc',
+                  detail: 'Successfully subscribed!',
+                  life: 2000
+                })
+                console.log(data)},
+              error: (err) => {
+                this.messageService.add({
+                  severity: 'error',
+                  summary: 'Error',
+                  key: 'bc',
+                  detail: 'Subscribe failed!',
+                  life: 2000
+                })
+                console.log(err)}
             })
           }
 
