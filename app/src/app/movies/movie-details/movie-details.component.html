@@ -40,20 +40,20 @@
     <div class="movie-footer">
         <p-button type="button" label="Download"
          class="p-button-secondary" [outlined]="true" (onClick)="download()"></p-button>
-       <p-button type="button" label="Rate Movie" class="p-button-secondary" [outlined]="true"
-                (onClick)="showRateDialog()"></p-button>
+       <p-button type="button" class="p-button-secondary" [outlined]="true"
+                (onClick)="showRateDialog()">{{rate_button_label}}</p-button>
     </div>
 
-    
+
 </div>
 
-<p-dialog 
+<p-dialog
     header="{{movie.name}}"
-    [(visible)]="visible" 
-    [modal]="true" 
-    [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }" 
-    [style]="{ width: '70vw' }" 
-    [draggable]="false" 
+    [(visible)]="visible"
+    [modal]="true"
+    [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }"
+    [style]="{ width: '70vw' }"
+    [draggable]="false"
     [resizable]="true">
     <div *ngIf="videoUrl">
       <div class="video-player-modal">
@@ -65,4 +65,4 @@
     </div>
 </p-dialog>
 
-  
+

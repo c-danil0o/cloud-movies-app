@@ -31,27 +31,46 @@ async function handler(event: APIGatewayEvent, context: Context){
         const { Items } = await db.query(checkParams);
         console.log(Items)
         if (Items && Items.length > 0) {
-            return {
-                statusCode: 400,
-                body: JSON.stringify({ message: 'User has already rated this movie' })
+            let rating = Items[0] as Rating;
+            const previous_grade = rating.grade;
+            rating.grade = item.grade;
+            const params = {
+                TableName: RATINGS_TABLE_NAME,
+                Item: rating,
             };
-        }
+            await db.put(params);
+            if(item.grade > previous_grade){
+                if(item.grade == 3){
+                    await updateFeedInfo(item.user, String(item.grade), item.genre);
+                }
+                else if(item.grade == 4){
+                    if (previous_grade == 3){
+                        await updateFeedInfo(item.user, String(previous_grade), item.genre);
+                    }else{
+                        await updateFeedInfo(item.user, String(item.grade), item.genre);
+                    }
+                }
+                else if(item.grade == 5){
+                    if (previous_grade == 4){
+                        await updateFeedInfo(item.user, String(previous_grade), item.genre);
+                    }else if (previous_grade == 3){
+                        await updateFeedInfo(item.user, String(previous_grade+1), item.genre);
+                    }else{
+                        await updateFeedInfo(item.user, String(item.grade), item.genre);
+                    }
+                }
+            }
 
-
-        item.id = randomUUID();
-        const params = {
-            TableName: RATINGS_TABLE_NAME,
-            Item: item,
-        };
-        await db.put(params);
-
-
-        if(item.grade>2){
-            console.log("POZIVAM GAAAA");
-            console.log("POZIVAM GAAAA");
-            console.log("POZIVAM GAAAA");
-
-            await updateFeedInfo(item.user, String(item.grade), item.genre);
+        }else{
+            item.id = randomUUID();
+            const params = {
+                TableName: RATINGS_TABLE_NAME,
+                Item: item,
+            };
+            await db.put(params);
+            if(item.grade>2){
+                await updateFeedInfo(item.user, String(item.grade), item.genre);
+            }
         }
 
         const response: APIGatewayProxyResult = {

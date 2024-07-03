@@ -33,11 +33,13 @@ export class MovieDetailsComponent implements OnInit {
     movieId!: string;
     videoUrl!: string;
     visible = false;
-
-
-    constructor(private route: ActivatedRoute, private movieService: MovieService, private fileSaverService: FileSaverService, private authService: AuthService, private messageService: MessageService) { }
+    rate_button_label: string = "Rate movie"
     movieRatingVisible: boolean = false;
     movie_rating_value: number = -1;
+    user_id!: string;
+
+    constructor(private route: ActivatedRoute, private movieService: MovieService, private fileSaverService: FileSaverService, private authService: AuthService, private messageService: MessageService) { }
+
 
     ngOnInit(): void {
       this.route.params.subscribe(params => {
@@ -48,6 +50,23 @@ export class MovieDetailsComponent implements OnInit {
             this.movie = data.Item;
           }
         })
+        this.authService.getUserInfo().subscribe({
+          next: (info) => {
+            if (info){
+              this.user_id = info.id;
+              this.movieService.getMovieRate(this.user_id, this.movieId).subscribe({
+                next: (data) =>{
+                  if (data){
+                    if (data.Rate){
+                      this.rate_button_label = "Your Rate: " + String(data.Rate);
+                    }
+                  }
+                }
+              })
+            }
+          }
+        })
+
       });
     }
 
@@ -140,7 +159,8 @@ export class MovieDetailsComponent implements OnInit {
                   detail: 'Successfully rated movie!',
                   life: 2000
                 })
-                console.log(data)},
+                this.rate_button_label = "Your Rate: " + String(data.item['grade']);
+                console.log(data.item)},
               error: (err) => {
                 this.messageService.add({
                   severity: 'error',

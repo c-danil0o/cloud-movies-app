@@ -1,4 +1,4 @@
-import { HttpClient, HttpHeaders, HttpResponse } from '@angular/common/http';
+import {HttpClient, HttpHeaders, HttpParams, HttpResponse} from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import {Observable, Subscriber} from 'rxjs';
 import { Movie } from '../models/movie';
@@ -69,6 +69,13 @@ export class MovieService {
 
   getPersonalizedFeed(user_id: string): Observable<any> {
     return this.httpClient.get(environment.apiGateway + "feed/" + user_id)
+  }
+
+  getMovieRate(user_id:string, movie_id:string): Observable<any>{
+    let params = new HttpParams();
+    params = params.append('user_id', user_id);
+    params = params.append('movie_id', movie_id);
+    return this.httpClient.get(environment.apiGateway + "rating", {params: params})
   }
 
 }

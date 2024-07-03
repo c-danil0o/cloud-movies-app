@@ -94,7 +94,8 @@ video {
 }
 
 .p-button-secondary{
-  margin: 10px
+  margin: 10px;
+  width: fit-content;
 }
 
 .p-button-sub{
@@ -109,3 +110,10 @@ video {
   background-color: transparent;
   border-color: transparent;
 }
+
+.button-content {
+  display: inline-flex;
+  align-items: center;
+}
+
+
