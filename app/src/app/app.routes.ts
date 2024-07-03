@@ -7,13 +7,13 @@ import { MoviesCatalogComponent } from './movies/movies-catalog/movies-catalog.c
 import { MovieDetailsComponent } from './movies/movie-details/movie-details.component';
 import { authGuard, authGuard_admin } from './auth/guard';
 import { AddMovieComponent } from './movies/add-movie/add-movie.component';
-import {SubscriptionsComponent} from "./subscriptions/subscriptions.component";
+import { SubscriptionsComponent } from "./subscriptions/subscriptions.component";
 
 
 export const routes: Routes = [
   { component: LoginComponent, path: "login" },
   { component: RegisterComponent, path: "register" },
-  { component: ConfirmComponent, path: "confirm/:email", canActivate: [authGuard] },
+  { component: ConfirmComponent, path: "confirm/:email" },
   { component: HomeComponent, path: "home", canActivate: [authGuard_admin] },
   { component: MoviesCatalogComponent, path: "catalog", canActivate: [authGuard] },
   { component: MovieDetailsComponent, path: "details/:id", canActivate: [authGuard] },
