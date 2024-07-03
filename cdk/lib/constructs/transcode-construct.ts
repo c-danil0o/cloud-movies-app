@@ -8,17 +8,25 @@ import { DefinitionBody, JsonPath, Map, StateMachine } from 'aws-cdk-lib/aws-ste
 import { LambdaInvoke } from 'aws-cdk-lib/aws-stepfunctions-tasks';
 import { Runtime } from "aws-cdk-lib/aws-lambda";
 import { SqsDestination } from 'aws-cdk-lib/aws-s3-notifications';
+import path = require('path');
 
 export class Transcoder extends Construct {
 
   constructor(scope: Construct, id: string, moviesBucket: Bucket) {
     super(scope, id);
 
+    const layer = new cdk.aws_lambda.LayerVersion(this, 'ffpmegLayer', {
+      removalPolicy: cdk.RemovalPolicy.RETAIN,
+      code: cdk.aws_lambda.Code.fromAsset(path.join(__dirname, '../../resources/layer/', 'ffmpeg.zip')),
+      compatibleArchitectures: [cdk.aws_lambda.Architecture.X86_64],
+    });
+
     const transcoderLambda = new NodejsFunction(this, 'transcoderLambda', {
       entry: 'resources/lambda/transcode/transcode.ts',
       handler: 'handler',
       runtime: Runtime.NODEJS_20_X,
-      environment: {}
+      environment: {},
+      layers: [layer]
     })
 
     const updateDbAfterTranscode = new NodejsFunction(this, 'updateDbAfterTranscode', {
