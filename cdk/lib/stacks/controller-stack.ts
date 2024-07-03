@@ -134,6 +134,12 @@ export class ControllerStack extends cdk.Stack {
       handler: 'handler',
       ...nodeJsFunctionProps,
     })
+    const getUserMovieRatingLambda = new NodejsFunction(this, 'GetUserMovieRatingLambda', {
+      entry: 'resources/lambda/movie/get-user-movie-rate.ts',
+      handler: 'handler',
+      ...nodeJsFunctionProps,
+    })
+
 
 
     dbTable.grantReadWriteData(downloadMovieLambda);
@@ -143,6 +149,8 @@ export class ControllerStack extends cdk.Stack {
     dbTable.grantReadWriteData(getPersonalizedFeedLambda);
 
     ratingsTable.grantReadWriteData(rateMovieLambda);
+    ratingsTable.grantReadWriteData(getUserMovieRatingLambda);
+
 
     subscriptionsTable.grantReadWriteData(subscribeLambda);
     subscriptionsTable.grantReadWriteData(getSubscriptionsLambda);
@@ -172,7 +180,7 @@ export class ControllerStack extends cdk.Stack {
     const getSubscriptionsIntegration = new HttpLambdaIntegration("GetSubscrtiptionsIntegration", getSubscriptionsLambda);
     const unsubscribeIntegration = new HttpLambdaIntegration("UnsubscribeIntegration", unsubscribeLambda);
     const getPersonalizedFeedIntegration = new HttpLambdaIntegration("GetPersonalizedFeedIntgration", getPersonalizedFeedLambda);
-
+    const getUserMovieRatingIntegration = new HttpLambdaIntegration("getUserMovieRatingIntegration", getUserMovieRatingLambda);
 
     api.addRoutes(
       {
@@ -241,6 +249,13 @@ export class ControllerStack extends cdk.Stack {
           path: '/feed/{user_id}',
           methods: [HttpMethod.GET],
           integration: getPersonalizedFeedIntegration,
+        }
+    );
+    api.addRoutes(
+        {
+          path: '/rating',
+          methods: [HttpMethod.GET],
+          integration: getUserMovieRatingIntegration,
         }
     );
     new CfnOutput(this, "ApiEndpoint", {
