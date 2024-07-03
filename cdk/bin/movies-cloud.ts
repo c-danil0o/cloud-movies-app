@@ -16,6 +16,7 @@ const controllerStack = new ControllerStack(app, 'ControllerStack', {
   moviesBucket: persistenceStack.moviesBucket,
   ratingsTable: persistenceStack.ratingsTable,
   subscriptionsTable: persistenceStack.subscriptionsTable,
+  feedInfoTable: persistenceStack.feedInfoTable,
   adminAuthorizer: authStack.adminAuthorizer,
   userAuthorizer: authStack.userAuthorizer,
   env: { account: process.env.CDK_DEFAULT_ACCOUNT, region: process.env.CDK_DEFAULT_REGION }

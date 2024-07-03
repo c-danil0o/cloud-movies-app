@@ -1,12 +1,13 @@
-import { APIGatewayEvent, APIGatewayProxyResult, Context } from "aws-lambda";
-import { SubscriptionDto } from "../../dto/subscription-dto";
-import { DynamoDBDocument } from "@aws-sdk/lib-dynamodb";
-import { DynamoDB } from "@aws-sdk/client-dynamodb";
-import { Subscription } from "../../../types";
+import {APIGatewayEvent, APIGatewayProxyResult, Context} from "aws-lambda";
+import {SubscriptionDto} from "../../dto/subscription-dto";
+import {DynamoDBDocument} from "@aws-sdk/lib-dynamodb";
+import {DynamoDB} from "@aws-sdk/client-dynamodb";
+import {Subscription} from "../../../types";
+import {updateFeedInfo} from "./update-feed-info";
 
 const SUBS_TABLE_NAME = process.env.SUBS_TABLE_NAME || '';
 
-async function handler(event: APIGatewayEvent, context: Context) {
+async function handler(event: APIGatewayEvent, context: Context){
     if (!event.body) {
         return { statusCode: 400, body: 'invalid request, you are missing the parameter body' };
     }
@@ -20,19 +21,19 @@ async function handler(event: APIGatewayEvent, context: Context) {
                 user_id: user_id
             }
         });
-        if (existingItem.Item) {
+        if(existingItem.Item){
             const existingSub = existingItem.Item as Subscription;
             const type = item.type;
-            if (type.toLowerCase() == 'genre') {
+            if(type.toLowerCase() == 'genre'){
                 existingSub.genres = existingSub.genres.filter(value => value != item.value);
             }
-            else if (type.toLowerCase() == 'actor') {
+            else if(type.toLowerCase() == 'actor'){
                 existingSub.actors = existingSub.actors.filter(value => value != item.value);
             }
-            else if (type.toLowerCase() == 'director') {
+            else if(type.toLowerCase() == 'director'){
                 existingSub.directors = existingSub.directors.filter(value => value != item.value);
             }
-            else {
+            else{
                 return {
                     statusCode: 400,
                     body: JSON.stringify({ message: 'Invalid type of subscription!' })
@@ -42,6 +43,9 @@ async function handler(event: APIGatewayEvent, context: Context) {
                 TableName: SUBS_TABLE_NAME,
                 Item: existingSub
             });
+
+            await updateFeedInfo(user_id, item.type.toLowerCase()+'Unsub', item.value)
+
             const response: APIGatewayProxyResult = {
                 statusCode: 200,
                 body: JSON.stringify({
@@ -50,7 +54,7 @@ async function handler(event: APIGatewayEvent, context: Context) {
             };
             return response;
 
-        } else {
+        }else{
             return {
                 statusCode: 400,
                 body: JSON.stringify({ message: 'Bad request!' })
@@ -58,10 +62,10 @@ async function handler(event: APIGatewayEvent, context: Context) {
         }
 
 
-    } catch (err) {
+    }catch (err){
         console.error(err);
         return { statusCode: 500, body: err }
     }
 }
 
-export { handler }
+export {handler}
