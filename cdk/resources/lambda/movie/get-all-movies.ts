@@ -1,12 +1,12 @@
-import {APIGatewayProxyEvent, APIGatewayProxyResult, Context} from "aws-lambda";
-import {DynamoDBDocument, DynamoDBDocumentClient, ScanCommand} from "@aws-sdk/lib-dynamodb";
-import {DynamoDB, DynamoDBClient} from "@aws-sdk/client-dynamodb";
-import {MovieDto} from "../dto/movie-dto";
+import { APIGatewayProxyEvent, APIGatewayProxyResult, Context } from "aws-lambda";
+import { DynamoDBDocument, DynamoDBDocumentClient, ScanCommand } from "@aws-sdk/lib-dynamodb";
+import { DynamoDB, DynamoDBClient } from "@aws-sdk/client-dynamodb";
+import { MovieDto } from "../../dto/movie-dto";
 
 
 const TABLE_NAME = process.env.TABLE_NAME || '';
 
-async function handler(event: APIGatewayProxyEvent ,context: Context){
+async function handler(event: APIGatewayProxyEvent, context: Context) {
     try {
         const client = new DynamoDBClient({});
         const docClient = DynamoDBDocumentClient.from(client);
@@ -14,7 +14,7 @@ async function handler(event: APIGatewayProxyEvent ,context: Context){
         const command = new ScanCommand({
             ProjectionExpression: "#id, #name, #description, #year, #director, #genre, #duration, #rating, #fileSize, #actors, #episode_number, #thumbnail",
             ExpressionAttributeNames: {
-                "#id" :"id",
+                "#id": "id",
                 "#name": "name",
                 "#description": "description",
                 "#year": "year",
@@ -24,14 +24,14 @@ async function handler(event: APIGatewayProxyEvent ,context: Context){
                 "#rating": "rating",
                 "#fileSize": "fileSize",
                 "#actors": "actors",
-                "#episode_number" : "episode_number",
-                "#thumbnail" : "thumbnail"
+                "#episode_number": "episode_number",
+                "#thumbnail": "thumbnail"
             },
             TableName: TABLE_NAME,
         });
 
         const response = await docClient.send(command);
-        const movies : MovieDto[] = []
+        const movies: MovieDto[] = []
         // @ts-ignore
         for (const movie of response.Items) {
             movies.push({
@@ -54,14 +54,14 @@ async function handler(event: APIGatewayProxyEvent ,context: Context){
         const final_response: APIGatewayProxyResult = {
             statusCode: 200,
             body: JSON.stringify({
-                Movies : movies
+                Movies: movies
             }),
         };
         return final_response;
-    } catch (err){
+    } catch (err) {
         console.error(err);
-        return {statusCode: 500, body:err}
+        return { statusCode: 500, body: err }
     }
 }
 
-export {handler}
+export { handler }

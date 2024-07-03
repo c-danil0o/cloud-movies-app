@@ -1,6 +1,6 @@
 import { APIGatewayProxyEvent, Context, APIGatewayProxyResult } from "aws-lambda";
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3'
-import { Movie } from "../../types";
+import { Movie } from "../../../types";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { randomUUID } from "crypto";
 import { DynamoDBDocument } from "@aws-sdk/lib-dynamodb";
@@ -20,10 +20,10 @@ async function handler(event: APIGatewayProxyEvent, context: Context) {
     let REGION = 'eu-central-1';
     let bucket = BUCKET_NAME;
     let key = randomUUID();
-    key = `${key}/initial.mp4`;
+    let bucketKey = `${key}/initial.mp4`;
 
     const client = new S3Client({ region: REGION });
-    const command = new PutObjectCommand({ Bucket: bucket, Key: key });
+    const command = new PutObjectCommand({ Bucket: bucket, Key: bucketKey });
 
     const presignedUrl = await getSignedUrl(client, command, { expiresIn: 500 });
     console.log("PresignedUrl: ", presignedUrl);

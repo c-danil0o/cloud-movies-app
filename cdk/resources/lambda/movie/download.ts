@@ -16,7 +16,7 @@ async function handler(event: APIGatewayProxyEvent, context: Context) {
 
     let REGION = 'eu-central-1';
     let bucket = BUCKET_NAME;
-    let key = requestedItemId;
+    let key = `${requestedItemId}/initial.mp4`;
     const client = new S3Client({ region: REGION });
     const command = new GetObjectCommand({ Bucket: bucket, Key: key });
 

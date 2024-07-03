@@ -1,13 +1,13 @@
-import {APIGatewayProxyEvent, APIGatewayProxyResult, Context} from "aws-lambda";
-import {DynamoDBDocument, DynamoDBDocumentClient, GetCommand} from "@aws-sdk/lib-dynamodb";
-import {DynamoDB, DynamoDBClient} from "@aws-sdk/client-dynamodb";
-import {Subscription} from "../../types";
+import { APIGatewayProxyEvent, APIGatewayProxyResult, Context } from "aws-lambda";
+import { DynamoDBDocument, DynamoDBDocumentClient, GetCommand } from "@aws-sdk/lib-dynamodb";
+import { DynamoDB, DynamoDBClient } from "@aws-sdk/client-dynamodb";
+import { Subscription } from "../../../types";
 
 const SUBS_TABLE_NAME = process.env.SUBS_TABLE_NAME;
 
-async function handler(event: APIGatewayProxyEvent, context: Context){
+async function handler(event: APIGatewayProxyEvent, context: Context) {
     const db = DynamoDBDocument.from(new DynamoDB());
-    try{
+    try {
         const user_id = event.pathParameters?.id;
         const existingItem = await db.get({
             TableName: SUBS_TABLE_NAME,
@@ -15,7 +15,7 @@ async function handler(event: APIGatewayProxyEvent, context: Context){
                 user_id: user_id
             }
         });
-        if (existingItem.Item){
+        if (existingItem.Item) {
             const existingSub = existingItem.Item as Subscription;
             const response: APIGatewayProxyResult = {
                 statusCode: 200,
@@ -24,21 +24,21 @@ async function handler(event: APIGatewayProxyEvent, context: Context){
                 })
             };
             return response;
-        }else{
+        } else {
             return {
-                statusCode:400,
-                body: JSON.stringify({message: "No subscriptions"})
+                statusCode: 400,
+                body: JSON.stringify({ message: "No subscriptions" })
             };
         }
 
 
-    }catch (err){
+    } catch (err) {
         console.log(err);
-        return {statusCode: 500, body: err};
+        return { statusCode: 500, body: err };
     }
 }
 
-export {handler}
+export { handler }
 
 
 
