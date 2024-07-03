@@ -7,7 +7,7 @@ import {NgForOf} from "@angular/common";
 import {Button} from "primeng/button";
 import {unsubscribe} from "node:diagnostics_channel";
 import {UserSubscriptions} from "../models/user-subscriptions";
-import {Subscription} from "../models/subscription";
+import {SubscriptionAndFeedInfo} from "../models/subscription_and_feed_info";
 
 @Component({
   selector: 'app-subscriptions',
@@ -58,7 +58,7 @@ export class SubscriptionsComponent implements OnInit {
     this.authService.getUserInfo().subscribe({
       next: (data) => {
         if (data != null){
-          const unsub: Subscription = {
+          const unsub: SubscriptionAndFeedInfo = {
             user_id: data.id,
             email: data.email,
             type: type,
@@ -66,10 +66,25 @@ export class SubscriptionsComponent implements OnInit {
           };
           this.movieService.unsubscribe(unsub).subscribe({
             next: (data) =>{
+              this.messageService.add({
+                severity: 'success',
+                summary: 'Success',
+                key: 'bc',
+                detail: 'Successfully unsubscribed!',
+                life: 2000
+              })
               this.user_subscriptions = data.Subscriptions;
               console.log(data.Subscriptions);
             },
-            error: err => console.log(err)
+            error: err => {
+              this.messageService.add({
+                severity: 'error',
+                summary: 'Error',
+                key: 'bc',
+                detail: 'Unsubscribe failed!',
+                life: 2000
+              })
+              console.log(err)}
           })
 
         }

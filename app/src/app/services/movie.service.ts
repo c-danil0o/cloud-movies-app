@@ -1,10 +1,10 @@
 import { HttpClient, HttpHeaders, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import {Observable, Subscriber} from 'rxjs';
 import { Movie } from '../models/movie';
 import { UploadUrl } from '../models/upload_url';
 import { Rating } from "../models/rating";
-import { Subscription } from "../models/subscription";
+import {SubscriptionAndFeedInfo} from "../models/subscription_and_feed_info";
 import { environment } from '../../env';
 
 @Injectable({
@@ -27,8 +27,10 @@ export class MovieService {
     })
   }
 
-  getDownloadUrl(id: string): Observable<any> {
-    return this.httpClient.get(environment.apiGateway + "download/" + id);
+  getDownloadUrl(id: string, info: SubscriptionAndFeedInfo): Observable<any> {
+    return this.httpClient.post(environment.apiGateway + "download/" + id, info, {
+      headers: this.headers
+    });
   }
 
   uploadMovie(uploadUrl: string, file: File) {
@@ -49,7 +51,7 @@ export class MovieService {
     });
   }
 
-  subscribe(sub: Subscription): Observable<any> {
+  subscribe(sub: SubscriptionAndFeedInfo): Observable<any> {
     return this.httpClient.post(environment.apiGateway + "subscribe", sub, {
       headers: this.headers
     });
@@ -59,10 +61,14 @@ export class MovieService {
     return this.httpClient.get(environment.apiGateway + "subscriptions/" + user_id);
   }
 
-  unsubscribe(sub: Subscription): Observable<any> {
+  unsubscribe(sub: SubscriptionAndFeedInfo): Observable<any> {
     return this.httpClient.post(environment.apiGateway + "unsubscribe", sub, {
       headers: this.headers
     });
+  }
+
+  getPersonalizedFeed(user_id: string): Observable<any> {
+    return this.httpClient.get(environment.apiGateway + "feed/" + user_id)
   }
 
 }

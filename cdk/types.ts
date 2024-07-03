@@ -23,6 +23,7 @@ export interface Rating{
   email: string;
   movie_id: string;
   grade: number;
+  genre: string;
 }
 
 export interface Subscription{
@@ -31,4 +32,12 @@ export interface Subscription{
   genres: string[];
   actors: string[];
   directors: string[];
+}
+
+export interface FeedInfo{
+  user_id: string;
+  email?: string;
+  genres: {genre:string; points: number}[];
+  actors: {actor:string; points: number}[];
+  directors: {director:string; points: number}[];
 }
