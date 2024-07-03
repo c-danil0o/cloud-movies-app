@@ -3,7 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
 import { SelectButtonModule } from "primeng/selectbutton";
 import { DropdownModule } from 'primeng/dropdown';
-import { FileSelectEvent, FileUploadEvent, FileUploadModule } from 'primeng/fileupload';
+import { FileSelectEvent, FileUploadModule } from 'primeng/fileupload';
 import { MessageService } from 'primeng/api';
 import { Movie } from '../../models/movie';
 import { MovieService } from '../../services/movie.service';

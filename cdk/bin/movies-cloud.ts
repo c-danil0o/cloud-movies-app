@@ -1,21 +1,28 @@
 #!/usr/bin/env node
-import 'source-map-support/register';
 import * as cdk from 'aws-cdk-lib';
-import { MoviesCloudStack } from '../lib/movies-cloud-stack';
+import { PersistenceStack } from '../lib/stacks/persistence-stack';
+import { ControllerStack } from '../lib/stacks/controller-stack';
+import { MoviesCloudStack } from '../lib/stacks/movies-cloud-stack';
+import { AuthStack } from '../lib/stacks/auth-stack';
 
 const app = new cdk.App();
-new MoviesCloudStack(app, 'MoviesCloudStack', {
-  /* If you don't specify 'env', this stack will be environment-agnostic.
-   * Account/Region-dependent features and context lookups will not work,
-   * but a single synthesized template can be deployed anywhere. */
 
-  /* Uncomment the next line to specialize this stack for the AWS Account
-   * and Region that are implied by the current CLI configuration. */
+const persistenceStack = new PersistenceStack(app, 'PersistenceStack', { env: { account: process.env.CDK_DEFAULT_ACCOUNT, region: process.env.CDK_DEFAULT_REGION } })
+
+const authStack = new AuthStack(app, 'AuthStack', { env: { account: process.env.CDK_DEFAULT_ACCOUNT, region: process.env.CDK_DEFAULT_REGION } })
+
+const controllerStack = new ControllerStack(app, 'ControllerStack', {
+  dbTable: persistenceStack.dbTable,
+  moviesBucket: persistenceStack.moviesBucket,
+  ratingsTable: persistenceStack.ratingsTable,
+  subscriptionsTable: persistenceStack.subscriptionsTable,
+  adminAuthorizer: authStack.adminAuthorizer,
+  userAuthorizer: authStack.userAuthorizer,
+  env: { account: process.env.CDK_DEFAULT_ACCOUNT, region: process.env.CDK_DEFAULT_REGION }
+})
+
+const moviesStack = new MoviesCloudStack(app, 'MoviesCloudStack', persistenceStack.moviesBucket, {
   env: { account: process.env.CDK_DEFAULT_ACCOUNT, region: process.env.CDK_DEFAULT_REGION },
-
-  /* Uncomment the next line if you know exactly what Account and Region you
-   * want to deploy the stack to. */
-  // env: { account: '767397713693', region: 'eu-central-1' },
-
-  /* For more information, see https://docs.aws.amazon.com/cdk/latest/guide/environments.html */
 });
+
+

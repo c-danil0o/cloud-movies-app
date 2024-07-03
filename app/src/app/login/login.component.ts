@@ -38,7 +38,7 @@ export class LoginComponent {
       }
       this.error = false;
       this.authService.authenticate(this.email, this.password).subscribe({
-        next: (result) => { console.log(result); this.router.navigate(['/home']) },
+        next: (result) => { console.log(result); this.router.navigate(['/catalog']) },
         error: (err) => {
           console.log(err);
           this.messageService.add({
