@@ -4,6 +4,7 @@ import {SubscriptionDto} from "../../dto/subscription-dto";
 import {DynamoDBDocument} from "@aws-sdk/lib-dynamodb";
 import {DynamoDB} from "@aws-sdk/client-dynamodb";
 import {updateFeedInfo} from "./update-feed-info";
+import {SNS} from "aws-sdk";
 
 
 const SUBS_TABLE_NAME = process.env.SUBS_TABLE_NAME || '';
@@ -39,6 +40,9 @@ async function handler(event: APIGatewayEvent, context: Context){
                         Subscriptions: existingSub
                     })
                 };
+                // if(item.email)
+                await subscribeForNotifications("perovic.aleksa2003@gmail.com", item.value);
+
                 return response;
             }else{
                 return {
@@ -106,5 +110,66 @@ function updateSubscription(subscription: Subscription, type: string, value: str
     return true;
 
 }
+
+async function subscribeForNotifications(email: string, sub_value: string) {
+    const sns = new SNS();
+    const topicName = `${sub_value.trim()}Topic`;
+    let topicArn;
+    try {
+        const topics = await sns.listTopics().promise();
+        const topic = topics.Topics?.find(t => t.TopicArn?.endsWith(`:${topicName}`));
+        topicArn = topic ? topic.TopicArn : null;
+    } catch (error) {
+        console.error('Error listing topics:', error);
+        return;
+    }
+
+    // Create the topic if it doesn't exist
+    if (!topicArn) {
+        try {
+            const createTopicResponse = await sns.createTopic({Name: topicName}).promise();
+            topicArn = createTopicResponse.TopicArn;
+        } catch (error) {
+            console.error('Error creating topic:', error);
+            return;
+        }
+    }
+
+    try {
+        await sns.subscribe({
+            TopicArn: topicArn!,
+            Protocol: 'email',
+            Endpoint: email,
+        }).promise();
+    } catch (error) {
+        console.error('Error subscribing to topic:', error);
+        return;
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 export {handler}
