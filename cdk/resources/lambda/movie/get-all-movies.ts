@@ -12,7 +12,7 @@ async function handler(event: APIGatewayProxyEvent, context: Context) {
         const docClient = DynamoDBDocumentClient.from(client);
 
         const command = new ScanCommand({
-            ProjectionExpression: "#id, #name, #description, #year, #director, #genre, #duration, #rating, #fileSize, #actors, #episode_number, #thumbnail",
+            ProjectionExpression: "#id, #name, #description, #year, #director, #genre, #duration, #rating, #fileSize, #actors, #episode_number, #thumbnail, #upload_status",
             ExpressionAttributeNames: {
                 "#id": "id",
                 "#name": "name",
@@ -25,7 +25,8 @@ async function handler(event: APIGatewayProxyEvent, context: Context) {
                 "#fileSize": "fileSize",
                 "#actors": "actors",
                 "#episode_number": "episode_number",
-                "#thumbnail": "thumbnail"
+                "#thumbnail": "thumbnail",
+                "#upload_status": "upload_status",
             },
             TableName: TABLE_NAME,
         });
@@ -46,7 +47,8 @@ async function handler(event: APIGatewayProxyEvent, context: Context) {
                 rating: movie.rating,
                 fileSize: movie.fileSize,
                 actors: movie.actors,
-                thumbnail: movie.thumbnail
+                thumbnail: movie.thumbnail,
+                upload_status: movie.upload_status,
             });
         }
         console.log(movies);

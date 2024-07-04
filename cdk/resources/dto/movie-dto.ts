@@ -11,4 +11,5 @@ export interface MovieDto {
     fileSize: number;
     actors: string;
     thumbnail: string;
+    upload_status: string;
 }

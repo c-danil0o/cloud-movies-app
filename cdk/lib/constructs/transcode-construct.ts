@@ -82,7 +82,9 @@ export class Transcoder extends Construct {
       jitterStrategy: JitterType.FULL
     })
 
-    transcodeMapStep.addCatch(updateDbInvokeFail);
+    transcodeMapStep.addCatch(updateDbInvokeFail, {
+      errors: ["States.ALL"]
+    });
 
 
 
