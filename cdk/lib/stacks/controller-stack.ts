@@ -4,6 +4,7 @@ import { CorsHttpMethod, HttpApi, HttpMethod } from 'aws-cdk-lib/aws-apigatewayv
 import { HttpLambdaAuthorizer, HttpLambdaResponseType } from 'aws-cdk-lib/aws-apigatewayv2-authorizers';
 import { HttpLambdaIntegration } from 'aws-cdk-lib/aws-apigatewayv2-integrations';
 import { Table } from 'aws-cdk-lib/aws-dynamodb';
+import { PolicyStatement } from 'aws-cdk-lib/aws-iam';
 import { Runtime } from 'aws-cdk-lib/aws-lambda';
 import { NodejsFunction, NodejsFunctionProps } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { Bucket } from 'aws-cdk-lib/aws-s3';
@@ -115,6 +116,12 @@ export class ControllerStack extends cdk.Stack {
       },
       ...nodeJsFunctionProps,
     })
+    const snsPolicy = new PolicyStatement({
+      actions: ['sns:CreateTopic', 'sns:Subscribe', 'sns:ListTopics'],
+      resources: ['arn:aws:sns:*:*:*'],
+    });
+
+    subscribeLambda.addToRolePolicy(snsPolicy);
 
     const getSubscriptionsLambda = new NodejsFunction(this, 'GetSubscriptionsLambda', {
       entry: 'resources/lambda/movie/get-subscriptions.ts',
