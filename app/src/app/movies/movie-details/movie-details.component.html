@@ -14,6 +14,9 @@
           <button pButton type="button" icon="pi pi-bell" class="p-button-sub" (click)="subscribe('director', movie.director)"></button>
         </div>
         <div class="item-sub-pair">
+          <p><strong>Description:</strong> {{ movie.description }}</p>
+        </div>
+        <div class="item-sub-pair">
           <p><strong>Genre:</strong> {{ movie.genre }}</p>
           <button pButton type="button" icon="pi pi-bell" class="p-button-sub" (click)="subscribe('genre', movie.genre)"></button>
         </div>

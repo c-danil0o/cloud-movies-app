@@ -73,7 +73,7 @@ export class AddMovieComponent {
       }
 
       let movie: Movie = {
-        upload_status: "uploading",
+        upload_status: "transcoding",
         name: this.movieName,
         description: this.description,
         episode_number: ep,

@@ -9,6 +9,7 @@ import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
 import { SelectButtonModule } from 'primeng/selectbutton';
+import { ChipModule } from 'primeng/chip'
 
 
 @NgModule({
@@ -24,7 +25,8 @@ import { SelectButtonModule } from 'primeng/selectbutton';
     IconFieldModule,
     InputIconModule,
     InputTextModule,
-    SelectButtonModule
+    SelectButtonModule,
+    ChipModule
   ],
   exports: [
     MoviesCatalogComponent

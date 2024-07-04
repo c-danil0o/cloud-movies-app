@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { Router } from '@angular/router';
-import {Movie} from '../../models/movie'
+import { Movie } from '../../models/movie'
 
 @Component({
   selector: 'app-movie-card',
@@ -9,8 +9,9 @@ import {Movie} from '../../models/movie'
 })
 export class MovieCardComponent {
   @Input() movie!: Movie;
+  @Input() role!: string;
 
-  constructor(private router: Router) {}
+  constructor(private router: Router) { }
 
   goToDetails(): void {
     this.router.navigate(['/details/', this.movie.id]);
