@@ -46,7 +46,7 @@ export class PersistenceStack extends cdk.Stack {
     })
 
     this.feedInfoTable = new Table(this, 'FeedInfoTable', {
-      partitionKey: {name: 'user_id', type: AttributeType.STRING },
+      partitionKey: { name: 'user_id', type: AttributeType.STRING },
       removalPolicy: RemovalPolicy.DESTROY,
       billingMode: BillingMode.PAY_PER_REQUEST,
     });
@@ -70,7 +70,7 @@ export class PersistenceStack extends cdk.Stack {
 
 
 
-    const transcoder = new Transcoder(this, "MovieTranscoder", this.moviesBucket);
+    const transcoder = new Transcoder(this, "MovieTranscoder", this.moviesBucket, this.dbTable);
 
 
 

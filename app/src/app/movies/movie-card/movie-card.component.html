@@ -1,5 +1,7 @@
 <div class="movie-card" (click)="goToDetails()">
-    <img src="{{movie.thumbnail}}" alt="Movie picture" class="movie-picture">
+    <div class="image-wrapper">
+      <img src="{{movie.thumbnail}}" alt="Movie picture" class="movie-picture">
+    </div>
     <div class="movie-info">
       <h3>{{ movie.name }}</h3>
       <button class="btn-details">More Details</button>
