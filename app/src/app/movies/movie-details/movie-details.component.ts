@@ -1,5 +1,5 @@
 import { Component, ElementRef, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Movie } from '../../models/movie';
 
 import { MovieService } from "../../services/movie.service";
@@ -45,11 +45,13 @@ export class MovieDetailsComponent implements OnInit {
     { name: '480p', code: '480' },
     { name: '360p', code: '360' },
   ];
+  role: string = "none";
 
-  constructor(private route: ActivatedRoute, private movieService: MovieService, private fileSaverService: FileSaverService, private authService: AuthService, private messageService: MessageService, private elRef: ElementRef) { }
+  constructor(private router: Router, private route: ActivatedRoute, private movieService: MovieService, private fileSaverService: FileSaverService, private authService: AuthService, private messageService: MessageService, private elRef: ElementRef) { }
 
 
   ngOnInit(): void {
+    this.authService.currentRole.subscribe(role => this.role = role)
     this.route.params.subscribe(params => {
       this.movieId = params['id'];
       this.movieService.getMovieById(this.movieId).subscribe({
@@ -146,6 +148,12 @@ export class MovieDetailsComponent implements OnInit {
       error: err => console.log(err)
     })
 
+  }
+
+  delete() {
+  }
+  edit() {
+    this.router.navigate(['/edit-movie/', this.movieId])
   }
 
   showRateDialog() {

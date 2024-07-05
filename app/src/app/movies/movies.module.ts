@@ -15,7 +15,7 @@ import { ChipModule } from 'primeng/chip'
 @NgModule({
   declarations: [
     MoviesCatalogComponent,
-    MovieCardComponent
+    MovieCardComponent,
   ],
   imports: [
     CommonModule,
