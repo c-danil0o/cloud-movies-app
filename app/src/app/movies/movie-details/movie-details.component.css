@@ -116,4 +116,15 @@ video {
   align-items: center;
 }
 
+.play-res{
+  display: flex;
+  width: 40%;
+  align-items: center;
+  gap: 10px;
+  justify-content: space-between;
+}
+.res-selector{
+  width: 60%;
+  background-color: transparent;
+}
 

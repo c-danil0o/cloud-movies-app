@@ -5,7 +5,12 @@
         <h2>{{ movie.name }}</h2>
         <p>{{ movie.year }} | Rating: {{ movie.rating }}</p>
         </div>
-        <p-button label="Play" [outlined]="true" severity="success" [raised]="true" class="fa fa-play" iconPos="right" (onClick)="play()"/>
+        <div class="play-res">
+        <p-dropdown class="res-selector" [style]="{width:'100%'}" [options]="resolutions" [(ngModel)]="selectedResolution"
+        optionLabel="name"></p-dropdown>
+          <p-button label="Play" [outlined]="true" severity="success" [raised]="true" class="fa fa-play" iconPos="right" (onClick)="play()"/>
+
+        </div>
 
     </div>
     <div class="movie-body">
@@ -61,7 +66,7 @@
     <div *ngIf="videoUrl">
       <div class="video-player-modal">
         <video controls autoplay>
-          <source [src]="videoUrl" type="video/mp4">
+          <source [src]="videoUrl" type="video/mp4" >
           Your browser does not support the video tag.
         </video>
       </div>

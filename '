@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Movie } from '../../models/movie';
 
@@ -38,7 +38,7 @@ export class MovieDetailsComponent implements OnInit {
   movieRatingVisible: boolean = false;
   movie_rating_value: number = -1;
   user_id!: string;
-  selectedResolution: { name: string, code: string } | null = { name: "Original", code: "initial" };
+  selectedResolution: { name: string, code: string } | null = null;
   resolutions = [
     { name: 'Original', code: 'initial' },
     { name: '720p', code: '720' },
@@ -46,7 +46,7 @@ export class MovieDetailsComponent implements OnInit {
     { name: '360p', code: '360' },
   ];
 
-  constructor(private route: ActivatedRoute, private movieService: MovieService, private fileSaverService: FileSaverService, private authService: AuthService, private messageService: MessageService, private elRef: ElementRef) { }
+  constructor(private route: ActivatedRoute, private movieService: MovieService, private fileSaverService: FileSaverService, private authService: AuthService, private messageService: MessageService) { }
 
 
   ngOnInit(): void {
@@ -102,16 +102,13 @@ export class MovieDetailsComponent implements OnInit {
             type: "download",
             value: this.movie.genre
           };
-          if (this.selectedResolution) {
-            this.movieService.getDownloadUrl(this.movieId, this.selectedResolution['code'], downloadInfo).subscribe({
-              next: (data) => {
-                console.log(data.url);
-                this.videoUrl = data.url;
-                this.downloadFile(this.videoUrl);
-              }
-            });
-
-          }
+          this.movieService.getDownloadUrl(this.movieId, downloadInfo).subscribe({
+            next: (data) => {
+              console.log(data.url);
+              this.videoUrl = data.url;
+              this.downloadFile(this.videoUrl);
+            }
+          });
         }
       },
       error: err => console.log(err)
@@ -131,16 +128,11 @@ export class MovieDetailsComponent implements OnInit {
             type: "download",
             value: this.movie.genre
           };
-          if (this.selectedResolution) {
-            this.movieService.getDownloadUrl(this.movieId, this.selectedResolution['code'], downloadInfo).subscribe({
-              next: (data) => {
-                this.videoUrl = data.url;
-                const player = this.elRef.nativeElement.querySelector('video');
-                player.load();
-              }
-            });
-
-          }
+          this.movieService.getDownloadUrl(this.movieId, downloadInfo).subscribe({
+            next: (data) => {
+              this.videoUrl = data.url;
+            }
+          });
         }
       },
       error: err => console.log(err)
