@@ -10,6 +10,7 @@ import { Runtime } from "aws-cdk-lib/aws-lambda";
 import { SqsDestination } from 'aws-cdk-lib/aws-s3-notifications';
 import path = require('path');
 import { Table } from 'aws-cdk-lib/aws-dynamodb';
+import {PolicyStatement} from "aws-cdk-lib/aws-iam";
 
 export class Transcoder extends Construct {
 
@@ -52,6 +53,19 @@ export class Transcoder extends Construct {
 
       }
     })
+    const sendNotificationsAfterTranscode = new NodejsFunction(this, 'SendNotificationsAfterTranscode', {
+      entry: 'resources/lambda/transcode/publish-message.ts',
+      handler: 'handler',
+      runtime: Runtime.NODEJS_20_X,
+      environment: {
+        TABLE_NAME: moviesTable.tableName
+      }
+    })
+    const snsPolicy = new PolicyStatement({
+      actions: ['sns:Publish', 'sns:ListTopics'],
+      resources: ['arn:aws:sns:*:*:*'],
+    });
+    sendNotificationsAfterTranscode.addToRolePolicy(snsPolicy);
 
     const transcodeInvoke = new LambdaInvoke(this, "Transcoder", {
       lambdaFunction: transcoderLambda,
@@ -70,6 +84,10 @@ export class Transcoder extends Construct {
     });
     const updateDbInvokeFail2 = new LambdaInvoke(this, "Update-DB-Fail2", {
       lambdaFunction: updateDbAfterTranscodeFail,
+      // outputPath: JsonPath.stringAt('$.output')
+    });
+    const sendNotificationsInvoke = new LambdaInvoke(this, "Send-Notifications", {
+      lambdaFunction: sendNotificationsAfterTranscode,
       // outputPath: JsonPath.stringAt('$.output')
     });
     const transcodeMapStep = new Map(this, "TranscodeMapStep", {
@@ -108,7 +126,8 @@ export class Transcoder extends Construct {
 
 
 
-    const definition = transcodeMapStep.next(updateDbInvoke);
+    const definition = transcodeMapStep.next(updateDbInvoke).next(sendNotificationsInvoke);
+
 
 
     const stateMachine = new StateMachine(this, "TranscodeStateMachine", {
@@ -132,6 +151,7 @@ export class Transcoder extends Construct {
     moviesBucket.grantReadWrite(transcoderLambda);
     moviesTable.grantWriteData(updateDbAfterTranscode);
     moviesTable.grantWriteData(updateDbAfterTranscodeFail);
+    moviesTable.grantReadWriteData(sendNotificationsAfterTranscode)
 
 
 

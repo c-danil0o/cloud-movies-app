@@ -20,6 +20,12 @@ export class PersistenceStack extends cdk.Stack {
       billingMode: BillingMode.PAY_PER_REQUEST,
     });
 
+    this.dbTable.addGlobalSecondaryIndex({
+      indexName: 'UploadStatusIndex',
+      partitionKey: { name: 'upload_status', type: AttributeType.STRING },
+      projectionType: ProjectionType.ALL,
+    });
+
     this.ratingsTable = new Table(this, 'Ratings', {
       partitionKey: { name: 'id', type: AttributeType.STRING },
       removalPolicy: RemovalPolicy.DESTROY,
@@ -65,6 +71,8 @@ export class PersistenceStack extends cdk.Stack {
       accessControl: BucketAccessControl.PRIVATE,
       cors: [s3CorsRule]
     });
+
+
 
 
 
