@@ -115,6 +115,7 @@ export class EditMovieComponent implements OnInit {
       }
 
       let movie: Movie = {
+        id: this.movieId,
         upload_status: this.upload_status,
         name: this.movieName,
         description: this.description,
@@ -142,45 +143,70 @@ export class EditMovieComponent implements OnInit {
         movie.modified_at = this.movie?.lastModified || 0;
         movie.fileSize = this.movie.size;
 
-        // this.movieService.deleteMovie(movie.id);
-        // this.movieService.getUploadUrl(movie)
+        this.movieService.deleteMovieById(this.movieId, "table-file").subscribe({
+          next: (res) => {
+            console.log("deleted movie")
+            this.movieService.getUploadUrl(movie).subscribe({
+              next: (data: UploadUrl) => {
+                console.log(data)
+                if (this.movie != null) {
+                  this.uploading = true;
 
-      }
+                  this.movieService.uploadMovie(data.Url, this.movie).subscribe({
+                    next: (result) => {
+                      console.log(result);
+                      this.messageService.add({
+                        severity: 'success',
+                        summary: 'Upload finished',
+                        key: 'bc',
+                        detail: 'Movie updated successfully!',
+                        life: 2000
+                      })
+                      this.uploading = false;
+                      this.router.navigate(['/catalog'])
+                    },
+
+                    error: (err) => { console.log(err); this.showError() }
+                  });
+                }
+              },
+              error: (err) => { console.log(err); this.showError() }
+            })
 
 
+          }
+        });
 
-      this.movieService.getUploadUrl(movie).subscribe({
-        next: (data: UploadUrl) => {
-          console.log(data)
-          if (this.movie != null) {
-            this.uploading = true;
-
-            this.movieService.uploadMovie(data.Url, this.movie).subscribe({
-              next: (result) => {
-                console.log(result);
+      } else {
+        this.movieService.deleteMovieById(this.movieId, "table").subscribe({
+          next: (res) => {
+            console.log('deleted')
+            console.log(res)
+            this.movieService.postMetadata(movie).subscribe({
+              next: (res) => {
+                console.log("posted metadata")
+                console.log(res)
                 this.messageService.add({
                   severity: 'success',
-                  summary: 'Upload finished',
+                  summary: 'Update finished',
                   key: 'bc',
-                  detail: 'Movie uploaded successfully!',
+                  detail: 'Movie updated successfully!',
                   life: 2000
                 })
-                this.uploading = false;
                 this.router.navigate(['/catalog'])
+
+
               },
+              error: (err) => {
+                console.log(err);
+                this.showError()
+              }
+            })
 
-              error: (err) => { console.log(err); this.showError() }
-            });
           }
-        },
-        error: (err) => { console.log(err); this.showError() }
-      })
-
-
+        })
+      }
     }
-
-
-
   }
 
   showError() {

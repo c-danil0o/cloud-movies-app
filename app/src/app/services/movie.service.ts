@@ -27,6 +27,11 @@ export class MovieService {
     })
   }
 
+  postMetadata(movie: Movie): Observable<any> {
+    return this.httpClient.post<any>(environment.apiGateway + "metadata", movie, {
+      headers: this.headers
+    })
+  }
   getDownloadUrl(id: string, resolution: string, info: SubscriptionAndFeedInfo): Observable<any> {
     return this.httpClient.post(environment.apiGateway + "download/" + id, info, {
       headers: this.headers,
@@ -46,6 +51,13 @@ export class MovieService {
 
   getMovieById(id: string): Observable<any> {
     return this.httpClient.get(environment.apiGateway + "movie/" + id)
+  }
+  deleteMovieById(id: string, deleteType: string): Observable<any> {
+    return this.httpClient.delete(environment.apiGateway + "delete/" + id, {
+      params: {
+        deleteType: deleteType
+      }
+    })
   }
 
   rateMovie(rating: Rating): Observable<any> {

@@ -79,7 +79,17 @@ export class ControllerStack extends cdk.Stack {
       handler: 'handler',
       ...nodeJsFunctionProps,
     });
+    const deleteMovieLambda = new NodejsFunction(this, 'DeleteLambda', {
+      entry: 'resources/lambda/movie/delete.ts',
+      handler: 'handler',
+      ...nodeJsFunctionProps,
+    });
 
+    const postMetadataLambda = new NodejsFunction(this, 'PostMetadaLambda', {
+      entry: 'resources/lambda/movie/post-metadata.ts',
+      handler: 'handler',
+      ...nodeJsFunctionProps,
+    });
 
     const corsOptionsLambda = new NodejsFunction(this, "CorsOptionsLambda", {
       entry: 'resources/lambda/auth/cors.ts',
@@ -154,9 +164,12 @@ export class ControllerStack extends cdk.Stack {
     dbTable.grantReadWriteData(getAllMoviesLambda);
     dbTable.grantReadWriteData(getMovieByIdLambda);
     dbTable.grantReadWriteData(getPersonalizedFeedLambda);
+    dbTable.grantReadWriteData(deleteMovieLambda)
+    dbTable.grantReadWriteData(postMetadataLambda);
 
     ratingsTable.grantReadWriteData(rateMovieLambda);
     ratingsTable.grantReadWriteData(getUserMovieRatingLambda);
+    ratingsTable.grantReadWriteData(deleteMovieLambda);
 
 
     subscriptionsTable.grantReadWriteData(subscribeLambda);
@@ -168,12 +181,13 @@ export class ControllerStack extends cdk.Stack {
     feedInfoTable.grantReadWriteData(unsubscribeLambda);
     feedInfoTable.grantReadWriteData(downloadMovieLambda);
     feedInfoTable.grantReadWriteData(getPersonalizedFeedLambda);
-    
+
 
 
     moviesBucket.grantPutAcl(uploadMovieLambda);
     moviesBucket.grantPut(uploadMovieLambda);
     moviesBucket.grantRead(downloadMovieLambda);
+    moviesBucket.grantDelete(deleteMovieLambda);
 
 
 
@@ -188,6 +202,8 @@ export class ControllerStack extends cdk.Stack {
     const unsubscribeIntegration = new HttpLambdaIntegration("UnsubscribeIntegration", unsubscribeLambda);
     const getPersonalizedFeedIntegration = new HttpLambdaIntegration("GetPersonalizedFeedIntgration", getPersonalizedFeedLambda);
     const getUserMovieRatingIntegration = new HttpLambdaIntegration("getUserMovieRatingIntegration", getUserMovieRatingLambda);
+    const deleteMovieLambdaIntegration = new HttpLambdaIntegration("deleteMovieLambdaIntegration", deleteMovieLambda);
+    const postMetadataLambdaIntegration = new HttpLambdaIntegration("postMetadataLambdaIntegration", postMetadataLambda);
 
     api.addRoutes(
       {
@@ -200,6 +216,22 @@ export class ControllerStack extends cdk.Stack {
         path: '/upload',
         methods: [HttpMethod.POST],
         integration: uploadLamdaIntegration,
+        authorizer: adminAuthorizer,
+      }
+    );
+    api.addRoutes(
+      {
+        path: '/metadata',
+        methods: [HttpMethod.POST],
+        integration: postMetadataLambdaIntegration,
+        authorizer: adminAuthorizer,
+      }
+    );
+    api.addRoutes(
+      {
+        path: '/delete/{id}',
+        methods: [HttpMethod.DELETE],
+        integration: deleteMovieLambdaIntegration,
         authorizer: adminAuthorizer,
       }
     );
@@ -252,18 +284,18 @@ export class ControllerStack extends cdk.Stack {
       }
     );
     api.addRoutes(
-        {
-          path: '/feed/{user_id}',
-          methods: [HttpMethod.GET],
-          integration: getPersonalizedFeedIntegration,
-        }
+      {
+        path: '/feed/{user_id}',
+        methods: [HttpMethod.GET],
+        integration: getPersonalizedFeedIntegration,
+      }
     );
     api.addRoutes(
-        {
-          path: '/rating',
-          methods: [HttpMethod.GET],
-          integration: getUserMovieRatingIntegration,
-        }
+      {
+        path: '/rating',
+        methods: [HttpMethod.GET],
+        integration: getUserMovieRatingIntegration,
+      }
     );
     new CfnOutput(this, "ApiEndpoint", {
       value: api.apiEndpoint,

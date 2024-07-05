@@ -151,6 +151,21 @@ export class MovieDetailsComponent implements OnInit {
   }
 
   delete() {
+    this.movieService.deleteMovieById(this.movieId, "full").subscribe({
+      next: (result: any) => {
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Success',
+          key: 'bc',
+          detail: 'Movie deleted successfully!',
+          life: 2000
+        })
+        console.log(result)
+        this.router.navigate(['/catalog'])
+
+      },
+      error: (err: any) => console.log(err)
+    })
   }
   edit() {
     this.router.navigate(['/edit-movie/', this.movieId])
