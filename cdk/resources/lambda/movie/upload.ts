@@ -19,7 +19,12 @@ async function handler(event: APIGatewayProxyEvent, context: Context) {
   try {
     let REGION = 'eu-central-1';
     let bucket = BUCKET_NAME;
-    let key = randomUUID();
+    let key = "";
+    if (!item.id) {
+      key = randomUUID();
+    } else {
+      key = item.id;
+    }
     let bucketKey = `${key}/initial.mp4`;
 
     const client = new S3Client({ region: REGION });
