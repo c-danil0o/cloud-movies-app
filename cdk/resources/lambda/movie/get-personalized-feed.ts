@@ -1,5 +1,5 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult, Context } from "aws-lambda";
-import { DynamoDBDocument, DynamoDBDocumentClient, ScanCommand } from "@aws-sdk/lib-dynamodb";
+import {DynamoDBDocument, DynamoDBDocumentClient, QueryCommand, ScanCommand} from "@aws-sdk/lib-dynamodb";
 import { DynamoDB, DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { MovieDto } from "../../dto/movie-dto";
 import {FeedInfo} from "../../../types";
@@ -22,9 +22,30 @@ async function handler(event: APIGatewayProxyEvent, context: Context) {
         });
         const client = new DynamoDBClient({});
         const docClient = DynamoDBDocumentClient.from(client);
-        const command = new ScanCommand({
-            ProjectionExpression: "#id, #name, #description, #year, #director, #genre, #duration, #rating, #fileSize, #actors, #episode_number, #thumbnail",
+        // const command = new ScanCommand({
+        //     ProjectionExpression: "#id, #name, #description, #year, #director, #genre, #duration, #rating, #fileSize, #actors, #episode_number, #thumbnail",
+        //     ExpressionAttributeNames: {
+        //         "#id": "id",
+        //         "#name": "name",
+        //         "#description": "description",
+        //         "#year": "year",
+        //         "#director": "director",
+        //         "#genre": "genre",
+        //         "#duration": "duration",
+        //         "#rating": "rating",
+        //         "#fileSize": "fileSize",
+        //         "#actors": "actors",
+        //         "#episode_number": "episode_number",
+        //         "#thumbnail": "thumbnail"
+        //     },
+        //     TableName: MOVIES_TABLE_NAME,
+        // });
+        const command = new QueryCommand({
+            TableName: MOVIES_TABLE_NAME,
+            IndexName: 'UploadStatusIndex',
+            KeyConditionExpression: "#upload_status = :upload_status",
             ExpressionAttributeNames: {
+                "#upload_status": "upload_status",
                 "#id": "id",
                 "#name": "name",
                 "#description": "description",
@@ -38,10 +59,14 @@ async function handler(event: APIGatewayProxyEvent, context: Context) {
                 "#episode_number": "episode_number",
                 "#thumbnail": "thumbnail"
             },
-            TableName: MOVIES_TABLE_NAME,
+            ExpressionAttributeValues: {
+                ":upload_status": "available"
+            },
+            ProjectionExpression: "#id, #name, #description, #year, #director, #genre, #duration, #rating, #fileSize, #actors, #episode_number, #thumbnail"
         });
         const response = await docClient.send(command);
         if (response){
+            console.log(response.Items);
             let movie_list = [];
             if (feed_item.Item){
                 const user_feed = feed_item.Item as FeedInfo;
@@ -51,7 +76,7 @@ async function handler(event: APIGatewayProxyEvent, context: Context) {
 
                 // @ts-ignore
                 for (const movie of response.Items) {
-                    const movieDto = {id: movie.id, name: movie.name, description: movie.description, year: movie.year, episode_number: movie.episode_number, genre: movie.genre, director: movie.director, duration: movie.duration, rating: movie.rating, fileSize: movie.fileSize, actors: movie.actors, thumbnail: movie.thumbnail};
+                    const movieDto : MovieDto = {id: movie.id, name: movie.name, description: movie.description, year: movie.year, episode_number: movie.episode_number, genre: movie.genre, director: movie.director, duration: movie.duration, rating: movie.rating, fileSize: movie.fileSize, actors: movie.actors, thumbnail: movie.thumbnail, upload_status: movie.upload_status};
                     movieRankingList.push({points: calculatePoints(user_feed, movieDto), movie: movieDto});
                 }
                 movieRankingList.sort((a, b) => b.points - a.points);

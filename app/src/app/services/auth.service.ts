@@ -205,7 +205,7 @@ export class AuthService {
 
         let userInfo: UserInfo = {
           id: session.getAccessToken().decodePayload()['sub'],
-          email: session.getAccessToken().decodePayload()['email']
+          email: session.getIdToken().decodePayload()['email']
         }
         return of(userInfo)
       }

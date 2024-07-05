@@ -4,34 +4,25 @@ import {DynamoDB} from "@aws-sdk/client-dynamodb";
 import {Movie} from "../../../types";
 import {SNS} from "aws-sdk";
 
-const TABLE_NAME = process.env.TABLE_NAME || '';
 
-async function handler(event: S3Event, context: Context) {
+async function handler(event: any, context: any) {
     try{
-        const db = DynamoDBDocument.from(new DynamoDB());
-        const time = event.Records[0].eventTime;
-        const key = decodeURIComponent(event.Records[0].s3.object.key.replace(/\+/g, ' '));
+        const movie = event['Payload']['Attributes'] as Movie;
+        console.log("got movie");
 
-        const movieItem = await db.get({
-            TableName: TABLE_NAME,
-            Key: {
-                id: key
-            }
-        });
+        const message: string = `New ${movie.genre} movie named ${movie.name} directed by ${movie.director} with ${movie.actors} is now available on MOVIFLIX. \n Visit our site and watch it now!`
 
-        if(movieItem.Item){
-            const movie = movieItem.Item as Movie;
-            const message: string = `New ${movie.genre} movie directed by ${movie.director} with ${movie.actors} is now available on MOVIFLIX. \n Visit our site and watch it now!`
-
-            await publishToTopic(movie.genre, "genre", message);
-            await publishToTopic(movie.director, "director", message);
-            console.log(movie.actors);              //videti kako ih cita
-
+        await publishToTopic(movie.genre, "genre", message);
+        await publishToTopic(movie.director, "director", message);
+        console.log(movie.actors);              //
+        for (const actor of movie.actors) {
+            await publishToTopic(actor, "actor", message);
         }
-
+        return {statusCode: 200, body: message};
 
     }catch(err){
         console.log(err);
+        return { statusCode: 502, body: err }
     }
 }
 
@@ -41,19 +32,24 @@ async function publishToTopic(subscribeItemName: string, type: string, message: 
     let topicArn;
     const nameForTopic=subscribeItemName.replace(/\s+/g, '');
     const topicName = `${nameForTopic}Topic`;
+    console.log(topicName);
     try {
         const topics = await sns.listTopics().promise();
         const topic = topics.Topics?.find(t => t.TopicArn?.endsWith(`:${topicName}`));
+        console.log(topic);
         topicArn = topic ? topic.TopicArn : null;
     } catch (error) {
         console.error('Error listing topics:', error);
         return
     }
+    console.log(topicArn);
     if (!topicArn) {
+        console.log("topicArn is null")
         return;
     }
 
-    const subject = generateSubject(type, subscribeItemName)
+    const subject = generateSubject(type, subscribeItemName);
+    console.log(subject);
 
     try {
         await sns.publish({
@@ -69,7 +65,7 @@ async function publishToTopic(subscribeItemName: string, type: string, message: 
 
 function generateSubject(type: string, subscribeName: string){
     if (type == "genre"){
-        return `NEW ${subscribeName.toUpperCase()} IS AVAILABLE ON MOVIFLIX`;
+        return `NEW ${subscribeName.toUpperCase()} MOVIE IS AVAILABLE ON MOVIFLIX`;
     }
     if (type == "actor"){
         return `NEW MOVIE WITH ${subscribeName.toUpperCase()} IS AVAILABLE ON MOVIFLIX`;
