@@ -22,7 +22,7 @@ async function handler(event: any, context: any) {
 
     const response = await docClient.send(command);
     console.log(response);
-    return response;
+    return { statusCode: 200, body: JSON.stringify("success") }
 
 
 

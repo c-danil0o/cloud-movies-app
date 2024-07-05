@@ -1,10 +1,10 @@
-import {HttpClient, HttpHeaders, HttpParams, HttpResponse} from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import {Observable, Subscriber} from 'rxjs';
+import { Observable, Subscriber } from 'rxjs';
 import { Movie } from '../models/movie';
 import { UploadUrl } from '../models/upload_url';
 import { Rating } from "../models/rating";
-import {SubscriptionAndFeedInfo} from "../models/subscription_and_feed_info";
+import { SubscriptionAndFeedInfo } from "../models/subscription_and_feed_info";
 import { environment } from '../../env';
 
 @Injectable({
@@ -27,9 +27,17 @@ export class MovieService {
     })
   }
 
-  getDownloadUrl(id: string, info: SubscriptionAndFeedInfo): Observable<any> {
-    return this.httpClient.post(environment.apiGateway + "download/" + id, info, {
+  postMetadata(movie: Movie): Observable<any> {
+    return this.httpClient.post<any>(environment.apiGateway + "metadata", movie, {
       headers: this.headers
+    })
+  }
+  getDownloadUrl(id: string, resolution: string, info: SubscriptionAndFeedInfo): Observable<any> {
+    return this.httpClient.post(environment.apiGateway + "download/" + id, info, {
+      headers: this.headers,
+      params: {
+        resolution: resolution
+      }
     });
   }
 
@@ -43,6 +51,13 @@ export class MovieService {
 
   getMovieById(id: string): Observable<any> {
     return this.httpClient.get(environment.apiGateway + "movie/" + id)
+  }
+  deleteMovieById(id: string, deleteType: string): Observable<any> {
+    return this.httpClient.delete(environment.apiGateway + "delete/" + id, {
+      params: {
+        deleteType: deleteType
+      }
+    })
   }
 
   rateMovie(rating: Rating): Observable<any> {
@@ -71,11 +86,11 @@ export class MovieService {
     return this.httpClient.get(environment.apiGateway + "feed/" + user_id)
   }
 
-  getMovieRate(user_id:string, movie_id:string): Observable<any>{
+  getMovieRate(user_id: string, movie_id: string): Observable<any> {
     let params = new HttpParams();
     params = params.append('user_id', user_id);
     params = params.append('movie_id', movie_id);
-    return this.httpClient.get(environment.apiGateway + "rating", {params: params})
+    return this.httpClient.get(environment.apiGateway + "rating", { params: params })
   }
 
 }

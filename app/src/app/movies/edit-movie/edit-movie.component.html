@@ -1,0 +1,62 @@
+<div class="form-wrapper">
+  <span class="header">Edit</span>
+  <div class="group">
+    <p-selectButton class='select' [options]="options" [(ngModel)]="selectedOption" optionLabel="label"
+      optionValue="value"></p-selectButton>
+    <div class="data-entry">
+      <span class="data-key">Name:</span>
+      <input class="input-field" type="text" [style]="{width:'60%'}" pInputText [(ngModel)]="movieName" />
+    </div>
+    <div class="data-entry">
+      <span class="data-key">Year:</span>
+      <input class="input-field" type="text" [style]="{width:'60%'}" pInputText [(ngModel)]="year" />
+    </div>
+    <div class="data-entry">
+      <span class="data-key">Genre:</span>
+      <p-dropdown class="input-field" [style]="{width:'100%'}" [options]="genres" [(ngModel)]="genre"
+        optionLabel="name"></p-dropdown>
+    </div>
+    <div class="data-entry">
+      <span class="data-key">Director:</span>
+      <input class="input-field" type="text" [style]="{width:'60%'}" pInputText [(ngModel)]="director" />
+    </div>
+    <div class="data-entry">
+      <span class="data-key">Actors(separated by ,):</span>
+      <input class="input-field" type="text" [style]="{width:'60%'}" pInputText [(ngModel)]="actors" />
+    </div>
+    <div class="data-entry">
+      <span class="data-key">Description:</span>
+      <textarea rows="10" cols="30" class="area no-input" pInputTextarea [(ngModel)]="description"></textarea>
+    </div>
+    @if (selectedOption == "series"){
+    <div class="data-entry">
+      <span class="data-key">Episode number:</span>
+      <input class="input-field" type="text" [style]="{width:'60%'}" pInputText [(ngModel)]="episode_number" />
+    </div>
+
+    }
+    <div class="data-entry">
+      <span class="data-key">Rating(0.0-5.0):</span>
+      <input class="input-field" type="text" [style]="{width:'60%'}" pInputText [(ngModel)]="rating" />
+    </div>
+    <div class="data-entry">
+      <span class="data-key">Duration(minutes):</span>
+      <input class="input-field" type="text" [style]="{width:'60%'}" pInputText [(ngModel)]="duration" />
+    </div>
+    <div class="data-entry">
+      <span class="data-key">Thumbnail:</span>
+      <p-fileUpload mode="basic" chooseLabel="Choose file" [customUpload]="true" (onSelect)="thumbnailSelected($event)"
+        accept="image/*" maxFileSize="100000000"></p-fileUpload>
+    </div>
+    <div class="data-entry">
+      <span class="data-key">Movie:</span>
+      <p-fileUpload mode="basic" chooseLabel="Choose file" [customUpload]="true" accept="video/*"
+        maxFileSize="100000000" (onSelect)="movieSelected($event)" [showUploadButton]="false"></p-fileUpload>
+    </div>
+    @if(uploading){
+    <p-progressSpinner ariaLabel="loading" />
+    }
+    <p-button class="select" icon="pi pi-check" (click)="done()" label="Done"></p-button>
+  </div>
+
+</div>

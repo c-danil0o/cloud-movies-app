@@ -8,6 +8,7 @@ import { MovieDetailsComponent } from './movies/movie-details/movie-details.comp
 import { authGuard, authGuard_admin } from './auth/guard';
 import { AddMovieComponent } from './movies/add-movie/add-movie.component';
 import { SubscriptionsComponent } from "./subscriptions/subscriptions.component";
+import { EditMovieComponent } from './movies/edit-movie/edit-movie.component';
 
 
 export const routes: Routes = [
@@ -18,5 +19,6 @@ export const routes: Routes = [
   { component: MoviesCatalogComponent, path: "catalog", canActivate: [authGuard] },
   { component: MovieDetailsComponent, path: "details/:id", canActivate: [authGuard] },
   { component: AddMovieComponent, path: "add-movie", canActivate: [authGuard_admin] },
+  { component: EditMovieComponent, path: "edit-movie/:id", canActivate: [authGuard_admin] },
   { component: SubscriptionsComponent, path: "subscriptions", canActivate: [authGuard] },
 ];
