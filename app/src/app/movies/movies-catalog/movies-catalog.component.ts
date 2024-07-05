@@ -35,16 +35,16 @@ export class MoviesCatalogComponent implements OnInit {
     this.authService.getUserInfo().subscribe({
       next: (data) => {
         if (data != null) {
-          // this.movieService.getPersonalizedFeed(data.id).subscribe({
-          //   next: (data) =>{
-          //     console.log(data.Movies)
-          //     this.movies = data.Movies;
-          //   }
-          this.movieService.getAllMovies().subscribe({
-            next: (data) => {
+          this.movieService.getPersonalizedFeed(data.id).subscribe({
+            next: (data) =>{
               console.log(data.Movies)
               this.movies = data.Movies;
             }
+          // this.movieService.getAllMovies().subscribe({
+          //   next: (data) => {
+          //     console.log(data.Movies)
+          //     this.movies = data.Movies;
+          //   }
           })
         }
       },

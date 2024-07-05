@@ -40,8 +40,8 @@ async function handler(event: APIGatewayEvent, context: Context){
                         Subscriptions: existingSub
                     })
                 };
-                // if(item.email)
-                await subscribeForNotifications("perovic.aleksa2003@gmail.com", item.value);
+                if(item.email)
+                    await subscribeForNotifications(item.email, item.value);
 
                 return response;
             }else{
@@ -66,6 +66,10 @@ async function handler(event: APIGatewayEvent, context: Context){
             });
 
             await updateFeedInfo(user_id, item.type.toLowerCase()+'Sub', item.value)      //type = npr. Actor, value npr. Dicaprio
+
+            if(item.email)
+                await subscribeForNotifications(item.email, item.value);
+
 
             const response: APIGatewayProxyResult = {
                 statusCode: 200,
@@ -113,7 +117,8 @@ function updateSubscription(subscription: Subscription, type: string, value: str
 
 async function subscribeForNotifications(email: string, sub_value: string) {
     const sns = new SNS();
-    const topicName = `${sub_value.trim()}Topic`;
+    console.log(sub_value);
+    const topicName = sub_value.replace(/\s+/g, '') + "Topic";
     let topicArn;
     try {
         const topics = await sns.listTopics().promise();
@@ -127,6 +132,8 @@ async function subscribeForNotifications(email: string, sub_value: string) {
     // Create the topic if it doesn't exist
     if (!topicArn) {
         try {
+            console.log(topicArn);
+            console.log(topicName);
             const createTopicResponse = await sns.createTopic({Name: topicName}).promise();
             topicArn = createTopicResponse.TopicArn;
         } catch (error) {
