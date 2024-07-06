@@ -1,15 +1,20 @@
 <div class="movie-card" (click)="goToDetails()">
-    <div class="image-wrapper">
-      <img src="{{movie.thumbnail}}" alt="Movie picture" class="movie-picture">
-    </div>
-    <div class="movie-info">
-      <h3>{{ movie.name }}</h3>
+  <div class="image-wrapper">
+    <img src="{{movie.thumbnail}}" alt="Movie picture" class="movie-picture">
+  </div>
+  <div class="movie-info">
+    @if(movie.episode_number!=-1){
+    <h3>{{movie.name + " EP_"+ movie.episode_number }}</h3>
+    }
+    @if(movie.episode_number==-1){
+    <h3>{{ movie.name }}</h3>
+    }
 
-      <div class="buttons">
-        @if (role == "Admin"){
-          <p-chip label="{{movie.upload_status}}" />
-        }
-        <button class="btn-details">More Details</button>
-      </div>
+    <div class="buttons">
+      @if (role == "Admin"){
+      <p-chip label="{{movie.upload_status}}" />
+      }
+      <button class="btn-details">More Details</button>
     </div>
+  </div>
 </div>

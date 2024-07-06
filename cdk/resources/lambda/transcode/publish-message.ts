@@ -1,38 +1,40 @@
-import {Movie} from "../../../types";
-import {SNS} from "aws-sdk";
+import { Movie } from "../../../types";
+import { SNS } from "aws-sdk";
 
 
 async function handler(event: any, context: any) {
-    try{
+    try {
         const movie = event['Payload']['Attributes'] as Movie;
         console.log("got movie");
 
-        const message: string = `New ${movie.genre} movie named ${movie.name} directed by ${movie.director} with ${movie.actors} is now available on MOVIFLIX. \n Visit our site and watch it now!`
+        const message: string = `New ${movie.genre} movie named ${movie.name} directed by ${movie.directors} with ${movie.actors} is now available on MOVIFLIX. \n Visit our site and watch it now!`
 
         await publishToTopic(movie.genre, "genre", message);
-        await publishToTopic(movie.director, "director", message);
         console.log(movie.actors);              //
         for (const actor of movie.actors) {
             await publishToTopic(actor, "actor", message);
         }
-        return {statusCode: 200, body: message};
+        for (const director of movie.directors) {
+            await publishToTopic(director, "director", message);
+        }
+        return { statusCode: 200, body: message };
 
-    }catch(err){
+    } catch (err) {
         console.log(err);
         return { statusCode: 502, body: err }
     }
 }
 
-async function publishToTopic(subscribeItemName: string, type: string, message: string){
+async function publishToTopic(subscribeItemName: string, type: string, message: string) {
     // Check if the topic exists
     const sns = new SNS();
     let topicArn;
-    const nameForTopic=subscribeItemName.replace(/\s+/g, '');
-    let addition : string= "Topic";
-    if (type == 'actor'){
+    const nameForTopic = subscribeItemName.replace(/\s+/g, '');
+    let addition: string = "Topic";
+    if (type == 'actor') {
         addition = "ATopic";
     }
-    if (type == 'director'){
+    if (type == 'director') {
         addition = "DTopic";
     }
     const topicName = `${nameForTopic}${addition}`;
@@ -67,19 +69,19 @@ async function publishToTopic(subscribeItemName: string, type: string, message: 
 
 }
 
-function generateSubject(type: string, subscribeName: string){
-    if (type == "genre"){
+function generateSubject(type: string, subscribeName: string) {
+    if (type == "genre") {
         return `NEW ${subscribeName.toUpperCase()} MOVIE IS AVAILABLE ON MOVIFLIX`;
     }
-    if (type == "actor"){
+    if (type == "actor") {
         return `NEW MOVIE WITH ${subscribeName.toUpperCase()} IS AVAILABLE ON MOVIFLIX`;
     }
-    if(type == "director"){
+    if (type == "director") {
         return `NEW ${subscribeName.toUpperCase()} MOVIE IS AVAILABLE ON MOVIFLIX`;
-    }else{
+    } else {
         return ""
     }
 }
 
 
-export {handler}
+export { handler }

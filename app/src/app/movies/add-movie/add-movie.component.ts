@@ -32,7 +32,7 @@ export class AddMovieComponent {
     private router: Router,
     private messageService: MessageService,
     private movieService: MovieService,
-  ) {}
+  ) { }
   thumbnailSelected($event: FileSelectEvent) {
     this.toBase64($event.files[0]).then((result) => (this.thumbnail = result));
   }
@@ -88,7 +88,9 @@ export class AddMovieComponent {
         Number(this.year) < 1800 ||
         Number(this.year) > 2030 ||
         Number(this.rating) <= 0.0 ||
-        Number(this.rating) > 10.0
+        Number(this.rating) > 10.0 ||
+        Number(this.episode_number) < 1
+
       ) {
         this.messageService.add({
           severity: 'error',

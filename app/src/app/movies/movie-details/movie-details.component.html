@@ -4,6 +4,9 @@
     <div class="movie-header-info">
       <h2>{{ movie.name }}</h2>
       <p>{{ movie.year }} | Rating: {{ movie.rating }}</p>
+      @if(movie.episode_number!=-1){
+      <h3>{{ movie.episode_number }}</h3>
+      }
     </div>
     <div class="controls">
       <p-dropdown class="res-selector" [style]="{ width: '100%' }" [options]="resolutions"
@@ -70,10 +73,13 @@
     <p-button type="button" class="p-button-secondary" [outlined]="true" (onClick)="showRateDialog()">{{
       rate_button_label }}</p-button>
     }
+    @if(role== "Admin"){
     <p-button label="Edit" [outlined]="true" severity="secondary" [raised]="true" class="fa fa-play" iconPos="right"
       (onClick)="edit()" />
     <p-button label="Delete" [outlined]="true" severity="warning" [raised]="true" class="fa fa-play" iconPos="right"
       (onClick)="delete()" />
+
+    }
   </div>
 </div>
 
