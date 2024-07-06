@@ -6,18 +6,18 @@ export interface Movie {
   episode_number?: number;
   year: number;
   genre: string;
-  director: string;
+  directors: string;
   duration: number;
   rating: number;
   fileSize: number;
-  actors: string,
+  actors: string;
   created_at: string;
   modified_at: string;
   thumbnail: string;
   search_field?: string;
 }
 
-export interface Rating{
+export interface Rating {
   id: string;
   user: string;
   email: string;
@@ -26,21 +26,26 @@ export interface Rating{
   genre: string;
 }
 
-export interface Subscription{
+export interface Subscription {
   user_id: string;
   email?: string;
   genres: string[];
   actors: string[];
   directors: string[];
-  arns: {name: string, type: string, topic_arn: string}[];
+  arns: { name: string; type: string; topic_arn: string }[];
 }
 
-export interface SubArn{}
+export interface SubArn { }
 
-export interface FeedInfo{
+export interface FeedInfo {
   user_id: string;
   email?: string;
-  genres: {genre:string; points: number}[];
-  actors: {actor:string; points: number}[];
-  directors: {director:string; points: number}[];
+  genres: { genre: string; points: number }[];
+  actors: { actor: string; points: number }[];
+  directors: { director: string; points: number }[];
+}
+
+export interface Crew {
+  id: string;
+  movie_id: string;
 }
