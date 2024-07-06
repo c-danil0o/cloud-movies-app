@@ -126,6 +126,35 @@ async function handler(event: APIGatewayEvent, context: Context) {
 
 
             }
+            else if (searchType?.toLowerCase() == 'description') {
+                const command = new QueryCommand({
+                    TableName: MOVIES_TABLE_NAME,
+                    IndexName: 'DescriptionIndex',
+                    KeyConditionExpression: "#description = :description",
+                    ExpressionAttributeNames: {
+                        "#upload_status": "upload_status",
+                        "#id": "id",
+                        "#name": "name",
+                        "#description": "description",
+                        "#year": "year",
+                        "#director": "director",
+                        "#genre": "genre",
+                        "#duration": "duration",
+                        "#rating": "rating",
+                        "#fileSize": "fileSize",
+                        "#actors": "actors",
+                        "#episode_number": "episode_number",
+                        "#thumbnail": "thumbnail"
+                    },
+                    ExpressionAttributeValues: {
+                        ":description": searchValue
+                    },
+                    ProjectionExpression: "#id, #name, #description, #year, #director, #genre, #duration, #rating, #fileSize, #actors, #episode_number, #thumbnail, #upload_status"
+                });
+                response = await docClient.send(command);
+                if (response.Items)
+                    moviesList = response.Items;
+            }
 
             const movies: MovieDto[] = []
             // @ts-ignore
