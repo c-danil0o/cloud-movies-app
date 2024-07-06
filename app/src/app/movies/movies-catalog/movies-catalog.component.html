@@ -3,15 +3,16 @@
   <div class="search-bar">
     <p-iconField iconPosition="left">
       <p-inputIcon styleClass="pi pi-search" />
-      <input type="text" pInputText placeholder="Search" />
+      <input type="text" pInputText placeholder="Search" [(ngModel)]="searchText" />
     </p-iconField>
     <p-dropdown [options]="criterias" [(ngModel)]="searchCriteria" optionLabel="name" placeholder="Select criteria" />
-    <p-button label="Search" [outlined]="true" severity="success" (click)="loadMovies()" />
+    <p-button class="add-movie" [outlined]="true" label="Clear filters" severity="warning" (click)="loadMovies()" />
+    <p-button label="Search" [outlined]="true" severity="success" (click)="search()" />
     @if(role == "Admin"){
     <p-button class="add-movie" label="Add movie" severity="warning" (click)="addMovie()" />
     }
   </div>
   <div class="movie-cards">
-    <app-movie-card *ngFor="let movie of movies"[role]="role" [movie]="movie"></app-movie-card>
+    <app-movie-card *ngFor="let movie of movies" [role]="role" [movie]="movie"></app-movie-card>
   </div>
 </div>
