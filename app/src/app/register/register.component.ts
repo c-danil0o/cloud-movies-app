@@ -20,6 +20,7 @@ export class RegisterComponent {
   lastName: string = "";
   error: any;
   emailRegex: any;
+  birthdate: any;
 
   constructor(private router: Router, private authService: AuthService) {
     this.email = "";
@@ -29,13 +30,17 @@ export class RegisterComponent {
   }
 
   register() {
-    if (this.email != "" && this.password != "" && this.firstName != "" && this.lastName != "" && this.emailRegex.test(this.email)) {
+    if (this.email != "" && this.password != "" && this.firstName != "" && this.lastName != "" && this.emailRegex.test(this.email) && this.birthdate != "") {
       this.error = false;
 
       this.authService.signUp(this.email, this.password, [
         {
           Name: "given_name",
           Value: this.firstName,
+        },
+        {
+          Name: "birthdate",
+          Value: this.birthdate,
         },
         {
           Name: "family_name",

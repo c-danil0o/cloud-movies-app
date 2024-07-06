@@ -45,6 +45,15 @@ export class MovieService {
     return this.httpClient.put(uploadUrl, file, { headers: this.skipheaders });
   }
 
+  search(field: string, value: string): Observable<any> {
+    return this.httpClient.get<any>(environment.apiGateway + "search", {
+      params: {
+        field: field,
+        value: value
+      }
+    })
+  }
+
   getAllMovies(): Observable<any> {
     return this.httpClient.get(environment.apiGateway + "all")
   }

@@ -5,7 +5,7 @@ export interface Movie {
   description: string;
   episode_number?: number;
   year: number;
-  director: string;
+  directors: string[];
   genre: string;
   duration: number;
   rating: number;

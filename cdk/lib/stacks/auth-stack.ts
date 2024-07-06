@@ -32,12 +32,13 @@ export class AuthStack extends cdk.Stack {
         postConfirmation: addUserToGroup
       },
       signInAliases: {
-        email: true
+        email: true,
       },
       selfSignUpEnabled: true,
       autoVerify: {
         email: true
       },
+
       userVerification: {
         emailSubject: 'You need to verify your email',
         emailBody: 'Thanks for signing up Your verification code is {####}',
@@ -50,6 +51,10 @@ export class AuthStack extends cdk.Stack {
           mutable: false,
         },
         familyName: {
+          required: true,
+          mutable: false,
+        },
+        birthdate: {
           required: true,
           mutable: false,
         }
