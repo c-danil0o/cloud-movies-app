@@ -117,7 +117,7 @@ export class ControllerStack extends cdk.Stack {
       ...nodeJsFunctionProps,
     })
     const snsPolicy = new PolicyStatement({
-      actions: ['sns:CreateTopic', 'sns:Subscribe', 'sns:ListTopics'],
+      actions: ['sns:CreateTopic', 'sns:Subscribe', 'sns:ListTopics', 'sns:ListSubscriptionsByTopic','sns:Unsubscribe'],
       resources: ['arn:aws:sns:*:*:*'],
     });
 
@@ -136,6 +136,7 @@ export class ControllerStack extends cdk.Stack {
       },
       ...nodeJsFunctionProps,
     })
+    unsubscribeLambda.addToRolePolicy(snsPolicy);
     const getPersonalizedFeedLambda = new NodejsFunction(this, 'GetPersonalizedFeedLambda', {
       entry: 'resources/lambda/movie/get-personalized-feed.ts',
       handler: 'handler',
