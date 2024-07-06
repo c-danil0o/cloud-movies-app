@@ -34,6 +34,24 @@ export class PersistenceStack extends cdk.Stack {
     });
 
     this.dbTable.addGlobalSecondaryIndex({
+      indexName: "TitleIndex",
+      partitionKey: { name: "name", type: AttributeType.STRING },
+      projectionType: ProjectionType.ALL,
+    });
+
+    this.dbTable.addGlobalSecondaryIndex({
+      indexName: "GenreIndex",
+      partitionKey: { name: "genre", type: AttributeType.STRING },
+      projectionType: ProjectionType.ALL,
+    });
+
+    this.dbTable.addGlobalSecondaryIndex({
+      indexName: "DescriptionIndex",
+      partitionKey: { name: "description", type: AttributeType.STRING },
+      projectionType: ProjectionType.ALL,
+    });
+
+    this.dbTable.addGlobalSecondaryIndex({
       indexName: "UploadStatusIndex",
       partitionKey: { name: "upload_status", type: AttributeType.STRING },
       projectionType: ProjectionType.ALL,
