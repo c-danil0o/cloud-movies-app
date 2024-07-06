@@ -120,6 +120,12 @@ export class ControllerStack extends cdk.Stack {
       ...nodeJsFunctionProps,
     });
 
+    const searchLambda = new NodejsFunction(this, "SearchLambda", {
+      entry: "resources/lambda/movie/search.ts",
+      handler: "handler",
+      ...nodeJsFunctionProps,
+    });
+
     const rateMovieLambda = new NodejsFunction(this, "RateMovieLambda", {
       entry: "resources/lambda/movie/rate-movie.ts",
       handler: "handler",
@@ -194,6 +200,8 @@ export class ControllerStack extends cdk.Stack {
     dbTable.grantReadWriteData(getPersonalizedFeedLambda);
     dbTable.grantReadWriteData(deleteMovieLambda);
     dbTable.grantReadWriteData(postMetadataLambda);
+    dbTable.grantReadWriteData(searchLambda);
+
 
     ratingsTable.grantReadWriteData(rateMovieLambda);
     ratingsTable.grantReadWriteData(getUserMovieRatingLambda);
@@ -270,6 +278,10 @@ export class ControllerStack extends cdk.Stack {
       "postMetadataLambdaIntegration",
       postMetadataLambda,
     );
+    const searchLambdaIntegration = new HttpLambdaIntegration(
+        "searchLambdaIntegration",
+        searchLambda,
+    );
 
     api.addRoutes({
       path: "/download/{id}",
@@ -339,6 +351,11 @@ export class ControllerStack extends cdk.Stack {
       path: "/rating",
       methods: [HttpMethod.GET],
       integration: getUserMovieRatingIntegration,
+    });
+    api.addRoutes({
+      path: "/search",
+      methods: [HttpMethod.GET],
+      integration: searchLambdaIntegration,
     });
     new CfnOutput(this, "ApiEndpoint", {
       value: api.apiEndpoint,
