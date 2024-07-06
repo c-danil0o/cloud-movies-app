@@ -4,6 +4,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { SelectButtonModule } from 'primeng/selectbutton';
 import { DropdownModule } from 'primeng/dropdown';
 import { FileSelectEvent, FileUploadModule } from 'primeng/fileupload';
+import { ChipsModule } from 'primeng/chips';
 import { MessageService } from 'primeng/api';
 import { Movie } from '../../models/movie';
 import { MovieService } from '../../services/movie.service';
@@ -21,6 +22,7 @@ import { ActivatedRoute, Router } from '@angular/router';
     DropdownModule,
     ProgressSpinnerModule,
     FileUploadModule,
+    ChipsModule
   ],
   templateUrl: './edit-movie.component.html',
   styleUrl: './edit-movie.component.css',
@@ -49,7 +51,7 @@ export class EditMovieComponent implements OnInit {
       console.log(data);
       this.movieName = data.name;
       this.year = String(data.year);
-      this.directors = data.directors.join(',');
+      this.directors = data.directors;
       this.genre = {
         name: data.genre.at(0)?.toUpperCase() + data.genre.substring(1),
         code: data.genre,
@@ -62,7 +64,7 @@ export class EditMovieComponent implements OnInit {
         this.selectedOption = 'movie';
         this.episode_number = '-1';
       }
-      this.actors = data.actors.join(',');
+      this.actors = data.actors;
       this.rating = String(data.rating);
       this.duration = String(data.duration);
       this.upload_status = data.upload_status;
@@ -94,7 +96,7 @@ export class EditMovieComponent implements OnInit {
   upload_status: string = '';
   movieName: string = '';
   year: string = '';
-  directors: string = ' ';
+  directors: string[] = [];
   genre: { name: string; code: string } | null = null;
   genres = [
     { name: 'Action', code: 'action' },
@@ -105,7 +107,7 @@ export class EditMovieComponent implements OnInit {
     { name: 'Western', code: 'western' },
   ];
   description: string = '';
-  actors: string = '';
+  actors: string[] = [];
   rating: string = '';
   episode_number: string = '';
   created_at: number = 0;
@@ -120,10 +122,10 @@ export class EditMovieComponent implements OnInit {
     if (
       this.movieName != '' &&
       !isNaN(Number(this.year)) &&
-      this.directors != '' &&
+      this.directors.length > 0 &&
       this.genre != null &&
       this.description != '' &&
-      this.actors != '' &&
+      this.actors.length > 0 &&
       !isNaN(Number(this.rating)) &&
       !isNaN(Number(this.duration))
     ) {
@@ -157,11 +159,11 @@ export class EditMovieComponent implements OnInit {
         episode_number: ep,
         year: Number(this.year),
         genre: this.genre['code'],
-        directors: this.directors.split(','),
+        directors: this.directors.map(director => director.trim()),
         duration: Number(this.duration),
         rating: Number(this.rating),
         fileSize: this.fileSize,
-        actors: this.actors.split(','),
+        actors: this.actors.map(actor => actor.trim()),
         thumbnail: this.thumbnail,
         created_at: this.created_at,
         modified_at: this.modified_at,
