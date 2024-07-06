@@ -23,7 +23,7 @@ export class MoviesCatalogComponent implements OnInit {
     { name: 'Title', value: 'title' },
     { name: 'Genre', value: 'genre' },
     { name: 'Description', value: 'description' },
-    { name: 'Actors', value: 'actors' },
+    { name: 'Actors', value: 'actor' },
     { name: 'Director', value: 'director' },
   ];
   role: string = 'none';

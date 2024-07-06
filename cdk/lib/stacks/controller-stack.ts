@@ -225,6 +225,7 @@ export class ControllerStack extends cdk.Stack {
     crewTable.grantReadWriteData(uploadMovieLambda);
     crewTable.grantReadWriteData(postMetadataLambda);
     crewTable.grantReadWriteData(deleteMovieLambda);
+    crewTable.grantReadData(searchLambda);
 
     const downloadLamdaIntegration = new HttpLambdaIntegration(
       "DownloadLambdaIntegration",
@@ -279,8 +280,8 @@ export class ControllerStack extends cdk.Stack {
       postMetadataLambda,
     );
     const searchLambdaIntegration = new HttpLambdaIntegration(
-        "searchLambdaIntegration",
-        searchLambda,
+      "searchLambdaIntegration",
+      searchLambda,
     );
 
     api.addRoutes({

@@ -1,17 +1,19 @@
-import {APIGatewayEvent, APIGatewayProxyResult, Context} from "aws-lambda";
-import {DynamoDBDocument, DynamoDBDocumentClient, QueryCommand} from "@aws-sdk/lib-dynamodb";
-import {DynamoDB, DynamoDBClient} from "@aws-sdk/client-dynamodb";
-import {MovieDto} from "../../dto/movie-dto";
+import { APIGatewayEvent, APIGatewayProxyResult, Context } from "aws-lambda";
+import { DynamoDBDocument, DynamoDBDocumentClient, QueryCommand } from "@aws-sdk/lib-dynamodb";
+import { DynamoDB, DynamoDBClient } from "@aws-sdk/client-dynamodb";
+import { MovieDto } from "../../dto/movie-dto";
 
 const MOVIES_TABLE_NAME = process.env.TABLE_NAME || '';
+const CREW_TABLE_NAME = process.env.CREW_TABLE_NAME || '';
 
-async function handler(event: APIGatewayEvent, context: Context){
+async function handler(event: APIGatewayEvent, context: Context) {
     const params = event.queryStringParameters;
-    if(params){
+    if (params) {
         const searchType = params['field'];
         const searchValue = params['value'];
         const db = DynamoDBDocument.from(new DynamoDB());
-        try{
+        try {
+            let moviesList: any[] = []
             const client = new DynamoDBClient({});
             const docClient = DynamoDBDocumentClient.from(client);
             let response;
@@ -38,11 +40,13 @@ async function handler(event: APIGatewayEvent, context: Context){
                     ExpressionAttributeValues: {
                         ":name": searchValue
                     },
-                    ProjectionExpression: "#id, #name, #description, #year, #director, #genre, #duration, #rating, #fileSize, #actors, #episode_number, #thumbnail"
+                    ProjectionExpression: "#id, #name, #description, #year, #director, #genre, #duration, #rating, #fileSize, #actors, #episode_number, #thumbnail,#upload_status"
                 });
                 response = await docClient.send(command);
+                if (response.Items)
+                    moviesList = response.Items
             }
-            else if (searchType?.toLowerCase() == 'genre'){
+            else if (searchType?.toLowerCase() == 'genre') {
                 const command = new QueryCommand({
                     TableName: MOVIES_TABLE_NAME,
                     IndexName: 'GenreIndex',
@@ -63,17 +67,69 @@ async function handler(event: APIGatewayEvent, context: Context){
                         "#thumbnail": "thumbnail"
                     },
                     ExpressionAttributeValues: {
-                        ":genre": searchValue
+                        ":genre": searchValue?.toLowerCase()
                     },
-                    ProjectionExpression: "#id, #name, #description, #year, #director, #genre, #duration, #rating, #fileSize, #actors, #episode_number, #thumbnail"
+                    ProjectionExpression: "#id, #name, #description, #year, #director, #genre, #duration, #rating, #fileSize, #actors, #episode_number, #thumbnail, #upload_status"
                 });
                 response = await docClient.send(command);
+                if (response.Items)
+                    moviesList = response.Items;
             }
+            else if (searchType?.toLowerCase() == 'actor' || searchType?.toLowerCase() == 'director') {
+                const searchId = searchType?.toLowerCase() == 'actor' ? `${searchValue}A` : `${searchValue}D`;
 
+
+                const command = new QueryCommand({
+                    TableName: CREW_TABLE_NAME,
+                    KeyConditionExpression: "#user_id = :user_id",
+                    ExpressionAttributeNames: {
+                        "#user_id": "user_id",
+                        "#movie_id": "movie_id",
+                    },
+                    ExpressionAttributeValues: {
+                        ":user_id": searchId
+                    },
+                    ProjectionExpression: "#user_id, #movie_id"
+                });
+                response = await docClient.send(command);
+                if (response && response.Items) {
+                    console.log(response.Items);
+                    for (const crew of response.Items) {
+                        const command = new QueryCommand({
+                            TableName: MOVIES_TABLE_NAME,
+                            KeyConditionExpression: "#id = :id",
+                            ExpressionAttributeNames: {
+                                "#upload_status": "upload_status",
+                                "#id": "id",
+                                "#name": "name",
+                                "#description": "description",
+                                "#year": "year",
+                                "#director": "director",
+                                "#genre": "genre",
+                                "#duration": "duration",
+                                "#rating": "rating",
+                                "#fileSize": "fileSize",
+                                "#actors": "actors",
+                                "#episode_number": "episode_number",
+                                "#thumbnail": "thumbnail"
+                            },
+                            ExpressionAttributeValues: {
+                                ":id": crew.movie_id
+                            },
+                            ProjectionExpression: "#id, #name, #description, #year, #director, #genre, #duration, #rating, #fileSize, #actors, #episode_number, #thumbnail, #upload_status"
+                        });
+                        response = await docClient.send(command);
+                        if (response.Items)
+                            moviesList.push(...response.Items)
+                    }
+                }
+
+
+            }
 
             const movies: MovieDto[] = []
             // @ts-ignore
-            for (const movie of response.Items) {
+            for (const movie of moviesList) {
                 movies.push({
                     id: movie.id,
                     name: movie.name,
@@ -101,14 +157,14 @@ async function handler(event: APIGatewayEvent, context: Context){
             return final_response;
 
 
-        }catch(error){
+        } catch (error) {
             console.log(error);
             return { statusCode: 500, body: error }
         }
-    }else{
+    } else {
         return { statusCode: 500, body: JSON.stringify({ message: "Bad Request" }) }
     }
 }
 
 
-export {handler}
+export { handler }
