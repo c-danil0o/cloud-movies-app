@@ -31,7 +31,7 @@ export class EditMovieComponent implements OnInit {
     private route: ActivatedRoute,
     private messageService: MessageService,
     private movieService: MovieService,
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.route.params.subscribe((params) => {
@@ -182,6 +182,16 @@ export class EditMovieComponent implements OnInit {
       }
       // uploading new file
       if (this.movie != null) {
+        if (this.upload_status == 'transcoding') {
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Cannot edit movie file',
+            key: 'bc',
+            detail: 'Please wait for transcoding to finish!',
+            life: 2000,
+          });
+          return;
+        }
         movie.upload_status = 'transcoding';
         movie.created_at = new Date().valueOf();
         movie.modified_at = this.movie?.lastModified || 0;

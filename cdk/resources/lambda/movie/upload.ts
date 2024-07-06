@@ -75,12 +75,12 @@ async function putInCastAndCrewTable(movie: Movie) {
   for (const actor of movie.actors) {
     await db.put({
       TableName: CREW_TABLE_NAME,
-      Item: { id: actor + "A", movie_id: movie.id },
+      Item: { user_id: actor + "A", movie_id: movie.id },
     });
     for (const director of movie.directors) {
       await db.put({
         TableName: CREW_TABLE_NAME,
-        Item: { id: director + "D", movie_id: movie.id },
+        Item: { user_id: director + "D", movie_id: movie.id },
       });
     }
   }

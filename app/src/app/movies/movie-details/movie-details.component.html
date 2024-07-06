@@ -26,17 +26,19 @@
   </div>
   <div class="movie-body">
     <div class="item-sub-pair">
-      <p><strong>Director:</strong> {{ movie.directors }}</p>
+      <p><strong>Directors:</strong></p>
       <ul>
         <li *ngFor="let director of movie.directors">
           {{ director }}
-          <button
-            pButton
-            type="button"
-            icon="pi pi-bell"
-            class="p-button-sub"
-            (click)="subscribe('director', director)"
-          ></button>
+          @if (role != "Admin") {
+            <button
+              pButton
+              type="button"
+              icon="pi pi-bell"
+              class="p-button-sub"
+              (click)="subscribe('director', director)"
+            ></button>
+          }
         </li>
       </ul>
     </div>
@@ -45,13 +47,15 @@
     </div>
     <div class="item-sub-pair">
       <p><strong>Genre:</strong> {{ movie.genre }}</p>
-      <button
-        pButton
-        type="button"
-        icon="pi pi-bell"
-        class="p-button-sub"
-        (click)="subscribe('genre', movie.genre)"
-      ></button>
+      @if (role != "Admin") {
+        <button
+          pButton
+          type="button"
+          icon="pi pi-bell"
+          class="p-button-sub"
+          (click)="subscribe('genre', movie.genre)"
+        ></button>
+      }
     </div>
     <p><strong>Duration:</strong> {{ movie.duration }} minutes</p>
     <p>
@@ -61,13 +65,15 @@
     <ul>
       <li *ngFor="let actor of movie.actors">
         {{ actor }}
-        <button
-          pButton
-          type="button"
-          icon="pi pi-bell"
-          class="p-button-sub"
-          (click)="subscribe('actor', actor)"
-        ></button>
+        @if (role != "Admin") {
+          <button
+            pButton
+            type="button"
+            icon="pi pi-bell"
+            class="p-button-sub"
+            (click)="subscribe('actor', actor)"
+          ></button>
+        }
       </li>
     </ul>
     <p-dialog
