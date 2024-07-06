@@ -102,12 +102,12 @@ async function handler(event: APIGatewayProxyEvent, context: Context) {
         KeyConditionExpression: "#movie_id = :movie_id",
         ExpressionAttributeNames: {
           "#movie_id": "movie_id",
-          "#id": "id",
+          "#user_id": "user_id",
         },
         ExpressionAttributeValues: {
           ":movie_id": itemId,
         },
-        ProjectionExpression: "#id",
+        ProjectionExpression: "#user_id",
       });
       const response = await docClient.send(query);
       if (response && response.Items) {
@@ -116,11 +116,12 @@ async function handler(event: APIGatewayProxyEvent, context: Context) {
           const dbCommand = new DeleteCommand({
             TableName: CREW_TABLE_NAME,
             Key: {
-              id: actor.id,
+              user_id: actor.user_id,
+              movie_id: itemId,
             },
           });
           await docClient.send(dbCommand);
-          console.log("deleted actor: " + actor.id);
+          console.log("deleted actor: " + actor.user_id);
         }
       }
     }
