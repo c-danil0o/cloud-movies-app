@@ -7,11 +7,12 @@ import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { Movie } from "../../../types";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { randomUUID } from "crypto";
-import { DynamoDBDocument } from "@aws-sdk/lib-dynamodb";
+import { DynamoDBDocument, QueryCommand } from "@aws-sdk/lib-dynamodb";
 import { DynamoDB } from "@aws-sdk/client-dynamodb";
 const BUCKET_NAME = process.env.BUCKET_NAME || "";
 const TABLE_NAME = process.env.TABLE_NAME || "";
 const CREW_TABLE_NAME = process.env.CREW_TABLE_NAME || "";
+const MOVIES_TABLE_NAME = process.env.TABLE_NAME || "";
 
 async function handler(event: APIGatewayProxyEvent, context: Context) {
   if (!event.body) {
@@ -36,6 +37,47 @@ async function handler(event: APIGatewayProxyEvent, context: Context) {
       key = item.id;
     }
     let bucketKey = `${key}/initial.mp4`;
+    if (item.episode_number != -1) {
+      const command = new QueryCommand({
+        TableName: MOVIES_TABLE_NAME,
+        IndexName: 'TitleIndex',
+        KeyConditionExpression: "#name = :name",
+        ExpressionAttributeNames: {
+          "#upload_status": "upload_status",
+          "#id": "id",
+          "#name": "name",
+          "#description": "description",
+          "#year": "year",
+          "#director": "director",
+          "#genre": "genre",
+          "#duration": "duration",
+          "#rating": "rating",
+          "#fileSize": "fileSize",
+          "#actors": "actors",
+          "#episode_number": "episode_number",
+          "#thumbnail": "thumbnail"
+        },
+        ExpressionAttributeValues: {
+          ":name": item.name
+        },
+        ProjectionExpression: "#id, #name, #description, #year, #director, #genre, #duration, #rating, #fileSize, #actors, #episode_number, #thumbnail,#upload_status"
+      });
+      let response = await db.send(command);
+      if (response.Items) {
+        for (const series of response.Items) {
+          if (series.episode_number == item.episode_number || series.genre != item.genre) {
+            return {
+              statusCode: 400, body: JSON.stringify({
+                error: "Error adding episode! Episode number already exists or genre is not matching!"
+              })
+            };
+
+          }
+        }
+
+      }
+
+    }
 
     const client = new S3Client({ region: REGION });
     const command = new PutObjectCommand({ Bucket: bucket, Key: bucketKey });

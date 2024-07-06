@@ -159,21 +159,22 @@ async function handler(event: APIGatewayEvent, context: Context) {
             const movies: MovieDto[] = []
             // @ts-ignore
             for (const movie of moviesList) {
-                movies.push({
-                    id: movie.id,
-                    name: movie.name,
-                    description: movie.description,
-                    year: movie.year,
-                    episode_number: movie.episode_number,
-                    genre: movie.genre,
-                    director: movie.director,
-                    duration: movie.duration,
-                    rating: movie.rating,
-                    fileSize: movie.fileSize,
-                    actors: movie.actors,
-                    thumbnail: movie.thumbnail,
-                    upload_status: movie.upload_status,
-                });
+                if (movie.upload_status == "available")
+                    movies.push({
+                        id: movie.id,
+                        name: movie.name,
+                        description: movie.description,
+                        year: movie.year,
+                        episode_number: movie.episode_number,
+                        genre: movie.genre,
+                        director: movie.director,
+                        duration: movie.duration,
+                        rating: movie.rating,
+                        fileSize: movie.fileSize,
+                        actors: movie.actors,
+                        thumbnail: movie.thumbnail,
+                        upload_status: movie.upload_status,
+                    });
             }
             console.log(movies);
 
