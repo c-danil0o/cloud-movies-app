@@ -61,3 +61,11 @@
   width: 60%;
   background-color: transparent;
 }
+
+::ng-deep .p-input-wrapper ul{
+  width: 100% !important;
+}
+
+::ng-deep .p-input-wrapper{
+  width: 100% !important;
+}

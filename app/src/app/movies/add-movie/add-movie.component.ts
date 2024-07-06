@@ -4,6 +4,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { SelectButtonModule } from 'primeng/selectbutton';
 import { DropdownModule } from 'primeng/dropdown';
 import { FileSelectEvent, FileUploadModule } from 'primeng/fileupload';
+import { ChipsModule } from 'primeng/chips';
 import { MessageService } from 'primeng/api';
 import { Movie } from '../../models/movie';
 import { MovieService } from '../../services/movie.service';
@@ -21,6 +22,7 @@ import { Router } from '@angular/router';
     DropdownModule,
     FileUploadModule,
     ProgressSpinnerModule,
+    ChipsModule
   ],
   templateUrl: './add-movie.component.html',
   styleUrl: './add-movie.component.css',
@@ -49,7 +51,7 @@ export class AddMovieComponent {
   uploading: boolean = false;
   movieName: string = '';
   year: string = '';
-  directors: string = '';
+  directors: string[] = [];
   genre: { name: string; code: string } | null = null;
   genres = [
     { name: 'Action', code: 'action' },
@@ -60,7 +62,7 @@ export class AddMovieComponent {
     { name: 'Western', code: 'western' },
   ];
   description: string = '';
-  actors: string = '';
+  actors: string[] = [];
   rating: string = '';
   episode_number: string = '';
   duration: string = '';
@@ -72,10 +74,10 @@ export class AddMovieComponent {
     if (
       this.movieName != '' &&
       !isNaN(Number(this.year)) &&
-      this.directors != '' &&
+      this.directors.length > 0 &&
       this.genre != null &&
       this.description != '' &&
-      this.actors != '' &&
+      this.actors.length > 0 &&
       !isNaN(Number(this.rating)) &&
       !isNaN(Number(this.duration)) &&
       this.movie != null
@@ -109,11 +111,11 @@ export class AddMovieComponent {
         episode_number: ep,
         year: Number(this.year),
         genre: this.genre['code'],
-        directors: this.directors.split(','),
+        directors: this.directors,
         duration: Number(this.duration),
         rating: Number(this.rating),
         fileSize: this.fileSize,
-        actors: this.actors.split(','),
+        actors: this.actors,
         thumbnail: this.thumbnail,
         created_at: new Date().valueOf(),
         modified_at: this.movie?.lastModified || 0,
@@ -122,9 +124,9 @@ export class AddMovieComponent {
           '%' +
           this.description +
           '%' +
-          this.actors +
+          this.actors.join(',') +
           '%' +
-          this.directors +
+          this.directors.join(',') +
           '%' +
           this.genre['code'],
       };
