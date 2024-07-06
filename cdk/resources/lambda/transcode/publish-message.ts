@@ -1,6 +1,3 @@
-import {Context, S3Event} from "aws-lambda";
-import {DynamoDBDocument} from "@aws-sdk/lib-dynamodb";
-import {DynamoDB} from "@aws-sdk/client-dynamodb";
 import {Movie} from "../../../types";
 import {SNS} from "aws-sdk";
 
@@ -31,7 +28,14 @@ async function publishToTopic(subscribeItemName: string, type: string, message: 
     const sns = new SNS();
     let topicArn;
     const nameForTopic=subscribeItemName.replace(/\s+/g, '');
-    const topicName = `${nameForTopic}Topic`;
+    let addition : string= "Topic";
+    if (type == 'actor'){
+        addition = "ATopic";
+    }
+    if (type == 'director'){
+        addition = "DTopic";
+    }
+    const topicName = `${nameForTopic}${addition}`;
     console.log(topicName);
     try {
         const topics = await sns.listTopics().promise();

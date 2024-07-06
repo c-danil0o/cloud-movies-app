@@ -27,6 +27,12 @@ async function handler(event: APIGatewayEvent, context: Context){
         if(existingItem.Item){
             const existingSub = existingItem.Item as Subscription;
             if (updateSubscription(existingSub, item.type.toLowerCase(), item.value)){
+                if(item.email){
+                    const arn = await subscribeForNotifications(item.email, item.value, item.type);
+                    if (arn != "" && arn){
+                        existingSub.arns.push({name:item.value, type:item.type, topic_arn: arn});
+                    }
+                }
                 await db.put({
                     TableName: SUBS_TABLE_NAME,
                     Item: existingSub
@@ -41,7 +47,7 @@ async function handler(event: APIGatewayEvent, context: Context){
                     })
                 };
                 if(item.email)
-                    await subscribeForNotifications(item.email, item.value);
+                    await subscribeForNotifications(item.email, item.value, item.type);
 
                 return response;
             }else{
@@ -52,13 +58,22 @@ async function handler(event: APIGatewayEvent, context: Context){
             }
         }
         else{
+            const arns = []
+            if(item.email){
+                const arn = await subscribeForNotifications(item.email, item.value, item.type);
+                if (arn != "" && arn)
+                    arns.push({name: item.value, type: item.type, topic_arn: arn});
+            }
+
             const newItem: Subscription = {
                 user_id : user_id,
                 email: item.email,
                 genres: [],
                 actors: [],
                 directors: [],
+                arns: arns
             };
+
             updateSubscription(newItem, item.type.toLowerCase(), item.value);
             await db.put({
                 TableName: SUBS_TABLE_NAME,
@@ -68,7 +83,7 @@ async function handler(event: APIGatewayEvent, context: Context){
             await updateFeedInfo(user_id, item.type.toLowerCase()+'Sub', item.value)      //type = npr. Actor, value npr. Dicaprio
 
             if(item.email)
-                await subscribeForNotifications(item.email, item.value);
+                await subscribeForNotifications(item.email, item.value, item.type);
 
 
             const response: APIGatewayProxyResult = {
@@ -115,10 +130,17 @@ function updateSubscription(subscription: Subscription, type: string, value: str
 
 }
 
-async function subscribeForNotifications(email: string, sub_value: string) {
+async function subscribeForNotifications(email: string, sub_value: string, type: string) {
     const sns = new SNS();
     console.log(sub_value);
-    const topicName = sub_value.replace(/\s+/g, '') + "Topic";
+    let addition : string= "Topic";
+    if (type == 'actor'){
+        addition = "ATopic";
+    }
+    if (type == 'director'){
+        addition = "DTopic";
+    }
+    const topicName = sub_value.replace(/\s+/g, '') + addition;
     let topicArn;
     try {
         const topics = await sns.listTopics().promise();
@@ -126,10 +148,9 @@ async function subscribeForNotifications(email: string, sub_value: string) {
         topicArn = topic ? topic.TopicArn : null;
     } catch (error) {
         console.error('Error listing topics:', error);
-        return;
+        return "";
     }
 
-    // Create the topic if it doesn't exist
     if (!topicArn) {
         try {
             console.log(topicArn);
@@ -138,19 +159,20 @@ async function subscribeForNotifications(email: string, sub_value: string) {
             topicArn = createTopicResponse.TopicArn;
         } catch (error) {
             console.error('Error creating topic:', error);
-            return;
+            return "";
         }
     }
 
     try {
-        await sns.subscribe({
+        const subscribeResponse = await sns.subscribe({
             TopicArn: topicArn!,
             Protocol: 'email',
             Endpoint: email,
         }).promise();
+        return topicArn
     } catch (error) {
         console.error('Error subscribing to topic:', error);
-        return;
+        return "";
     }
 }
 

@@ -32,7 +32,10 @@ export interface Subscription{
   genres: string[];
   actors: string[];
   directors: string[];
+  arns: {name: string, type: string, topic_arn: string}[];
 }
+
+export interface SubArn{}
 
 export interface FeedInfo{
   user_id: string;
