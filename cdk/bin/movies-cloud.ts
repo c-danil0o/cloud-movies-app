@@ -22,8 +22,8 @@ const controllerStack = new ControllerStack(app, 'ControllerStack', {
   env: { account: process.env.CDK_DEFAULT_ACCOUNT, region: process.env.CDK_DEFAULT_REGION }
 })
 
-const moviesStack = new MoviesCloudStack(app, 'MoviesCloudStack', persistenceStack.moviesBucket, {
-  env: { account: process.env.CDK_DEFAULT_ACCOUNT, region: process.env.CDK_DEFAULT_REGION },
-});
+// const moviesStack = new MoviesCloudStack(app, 'MoviesCloudStack', persistenceStack.moviesBucket, {
+//   env: { account: process.env.CDK_DEFAULT_ACCOUNT, region: process.env.CDK_DEFAULT_REGION },
+// });
 
 

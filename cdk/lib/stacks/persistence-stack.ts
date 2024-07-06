@@ -65,7 +65,7 @@ export class PersistenceStack extends cdk.Stack {
     };
 
     this.moviesBucket = new Bucket(this, 'Movies-bucket', {
-      bucketName: 'movies-cloud-9990999',
+      bucketName: 'movies-cloud-99900999',
       blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
       removalPolicy: RemovalPolicy.DESTROY,
       accessControl: BucketAccessControl.PRIVATE,

@@ -1,6 +1,6 @@
 export const environment = {
-  userPoolId: 'eu-central-1_h7ftnc64T',
-  clientId: '3r6uqiscadi4u3q70ajp5snnhe',
-  apiGateway: 'https://zky14eiqp7.execute-api.eu-central-1.amazonaws.com/'
+  userPoolId: 'eu-central-1_4OlpRj2uZ',
+  clientId: '1dt58cced6uoleilg81nh35ql3',
+  apiGateway: 'https://tpcznnzvsh.execute-api.eu-central-1.amazonaws.com/'
 }
 

@@ -11,7 +11,7 @@ import {
 import { environment } from '../../env';
 import { BehaviorSubject, EMPTY, Observable, Observer, of, switchMap, throwError } from 'rxjs';
 import { MessageService } from 'primeng/api';
-import {UserInfo} from "../models/UserInfo";
+import { UserInfo } from "../models/UserInfo";
 
 
 const POOLDATA = {
@@ -48,7 +48,7 @@ export class AuthService {
   signUp(
     username: string,
     password: string,
-    attributes: [{ Name: string; Value: string }, { Name: string; Value: string }]
+    attributes: [{ Name: string; Value: string }, { Name: string; Value: string }, { Name: string; Value: string },]
   ): Observable<any> {
     const userPool = this.getUserPool();
 
@@ -197,7 +197,7 @@ export class AuthService {
     }));
   }
 
-  getUserInfo():Observable<UserInfo|null>{
+  getUserInfo(): Observable<UserInfo | null> {
     return this.getSession().pipe(switchMap((session) => {
       if (session != null) {
         console.log(session.getAccessToken());
