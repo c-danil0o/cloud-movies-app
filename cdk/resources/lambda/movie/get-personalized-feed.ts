@@ -50,7 +50,7 @@ async function handler(event: APIGatewayProxyEvent, context: Context) {
         "#name": "name",
         "#description": "description",
         "#year": "year",
-        "#director": "director",
+        "#directors": "directors",
         "#genre": "genre",
         "#duration": "duration",
         "#rating": "rating",
@@ -62,7 +62,7 @@ async function handler(event: APIGatewayProxyEvent, context: Context) {
       ExpressionAttributeValues: {
         ":upload_status": "available"
       },
-      ProjectionExpression: "#id, #name, #description, #year, #director, #genre, #duration, #rating, #fileSize, #actors, #episode_number, #thumbnail"
+      ProjectionExpression: "#id, #name, #description, #year, #directors, #genre, #duration, #rating, #fileSize, #actors, #episode_number, #thumbnail"
     });
     const response = await docClient.send(command);
     if (response) {
@@ -76,7 +76,7 @@ async function handler(event: APIGatewayProxyEvent, context: Context) {
 
         // @ts-ignore
         for (const movie of response.Items) {
-          const movieDto: MovieDto = { id: movie.id, name: movie.name, description: movie.description, year: movie.year, episode_number: movie.episode_number, genre: movie.genre, director: movie.director, duration: movie.duration, rating: movie.rating, fileSize: movie.fileSize, actors: movie.actors, thumbnail: movie.thumbnail, upload_status: movie.upload_status };
+          const movieDto: MovieDto = { id: movie.id, name: movie.name, description: movie.description, year: movie.year, episode_number: movie.episode_number, genre: movie.genre, director: movie.directors, duration: movie.duration, rating: movie.rating, fileSize: movie.fileSize, actors: movie.actors, thumbnail: movie.thumbnail, upload_status: movie.upload_status };
           movieRankingList.push({ points: calculatePoints(user_feed, movieDto), movie: movieDto });
         }
         movieRankingList.sort((a, b) => b.points - a.points);
@@ -84,7 +84,7 @@ async function handler(event: APIGatewayProxyEvent, context: Context) {
       } else {
         // @ts-ignore
         for (const movie of response.Items) {
-          movie_list.push({ id: movie.id, name: movie.name, description: movie.description, year: movie.year, episode_number: movie.episode_number, genre: movie.genre, director: movie.director, duration: movie.duration, rating: movie.rating, fileSize: movie.fileSize, actors: movie.actors, thumbnail: movie.thumbnail });
+          movie_list.push({ id: movie.id, name: movie.name, description: movie.description, year: movie.year, episode_number: movie.episode_number, genre: movie.genre, director: movie.directors, duration: movie.duration, rating: movie.rating, fileSize: movie.fileSize, actors: movie.actors, thumbnail: movie.thumbnail });
         }
       }
 
