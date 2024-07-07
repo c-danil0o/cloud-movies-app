@@ -53,6 +53,15 @@ export class MovieService {
       }
     })
   }
+  multi_search(title: string, description: string, genre: string, actors: string[], directors: string[]): Observable<any> {
+    return this.httpClient.post<any>(environment.apiGateway + "multi-search", {
+      title: title,
+      description: description,
+      genre: genre,
+      actors: actors,
+      directors: directors
+    })
+  }
 
   getAllMovies(): Observable<any> {
     return this.httpClient.get(environment.apiGateway + "all")

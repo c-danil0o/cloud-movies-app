@@ -125,6 +125,11 @@ export class ControllerStack extends cdk.Stack {
       handler: "handler",
       ...nodeJsFunctionProps,
     });
+    const multi_searchLambda = new NodejsFunction(this, "MultiSearchLambda", {
+      entry: "resources/lambda/movie/multi-search.ts",
+      handler: "handler",
+      ...nodeJsFunctionProps,
+    });
 
     const rateMovieLambda = new NodejsFunction(this, "RateMovieLambda", {
       entry: "resources/lambda/movie/rate-movie.ts",
@@ -283,6 +288,10 @@ export class ControllerStack extends cdk.Stack {
       "searchLambdaIntegration",
       searchLambda,
     );
+    const multi_searchLambdaIntegration = new HttpLambdaIntegration(
+      "MultisearchLambdaIntegration",
+      multi_searchLambda,
+    );
 
     api.addRoutes({
       path: "/download/{id}",
@@ -357,6 +366,11 @@ export class ControllerStack extends cdk.Stack {
       path: "/search",
       methods: [HttpMethod.GET],
       integration: searchLambdaIntegration,
+    });
+    api.addRoutes({
+      path: "/muliti-search",
+      methods: [HttpMethod.POST],
+      integration: multi_searchLambdaIntegration,
     });
     new CfnOutput(this, "ApiEndpoint", {
       value: api.apiEndpoint,
