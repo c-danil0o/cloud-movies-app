@@ -3,7 +3,7 @@ import {
   Context,
   APIGatewayProxyResult,
 } from "aws-lambda";
-import { DeleteObjectsCommand, S3Client } from "@aws-sdk/client-s3";
+import { DeleteObjectCommand, DeleteObjectsCommand, S3Client } from "@aws-sdk/client-s3";
 import {
   DynamoDBDocumentClient,
   DeleteCommand,
@@ -14,6 +14,8 @@ const BUCKET_NAME = process.env.BUCKET_NAME || "";
 const TABLE_NAME = process.env.TABLE_NAME || "";
 const RATINGS_TABLE_NAME = process.env.RATINGS_TABLE_NAME || "";
 const CREW_TABLE_NAME = process.env.CREW_TABLE_NAME || "";
+const IMAGES_BUCKET = process.env.IMAGES_BUCKET || "";
+
 
 async function handler(event: APIGatewayProxyEvent, context: Context) {
   const itemId = event.pathParameters?.id;
@@ -124,6 +126,15 @@ async function handler(event: APIGatewayProxyEvent, context: Context) {
           console.log("deleted actor: " + actor.user_id);
         }
       }
+
+      // delete from images bucket
+      const command = new DeleteObjectCommand({
+        Bucket: IMAGES_BUCKET,
+        Key: `${itemId}.jpeg`
+      });
+      await client.send(command);
+      console.log("deleted from images bucket");
+
     }
 
     return { statusCode: 200, body: JSON.stringify("Success: Delete success") };

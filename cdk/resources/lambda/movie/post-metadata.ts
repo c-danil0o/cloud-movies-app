@@ -6,8 +6,10 @@ import {
 import { Movie } from "../../../types";
 import { DynamoDBDocument } from "@aws-sdk/lib-dynamodb";
 import { DynamoDB } from "@aws-sdk/client-dynamodb";
+import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 const TABLE_NAME = process.env.TABLE_NAME || "";
 const CREW_TABLE_NAME = process.env.CREW_TABLE_NAME || "";
+const IMAGES_BUCKET = process.env.IMAGES_BUCKET || "";
 
 async function handler(event: APIGatewayProxyEvent, context: Context) {
   if (!event.body) {
@@ -24,6 +26,25 @@ async function handler(event: APIGatewayProxyEvent, context: Context) {
   console.log(event);
   try {
     let key = item.id;
+
+    if (item.new_thumbnail) {
+
+      let REGION = "eu-central-1";
+      const client = new S3Client({ region: REGION });
+      var image = Buffer.from(item.new_thumbnail.replace(/^data:image\/\w+;base64,/, ""), 'base64')
+      const putImageCommand = new PutObjectCommand({
+        "Body": image,
+        "Bucket": IMAGES_BUCKET,
+        "Key": `${item.id}.jpeg`
+      })
+      await client.send(putImageCommand);
+      console.log("uploaded thumbnail")
+      const encodeFileName = encodeURIComponent(`${item.id}.jpeg`);
+
+
+      item.new_thumbnail = undefined;
+      item.thumbnail = `https://${IMAGES_BUCKET}.s3.amazonaws.com/${encodeFileName}`;
+    }
 
     item.id = key;
     const params = {
@@ -62,4 +83,5 @@ async function putInCastAndCrewTable(movie: Movie) {
     }
   }
 }
+
 export { handler };

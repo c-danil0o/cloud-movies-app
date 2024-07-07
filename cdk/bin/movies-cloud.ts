@@ -30,6 +30,7 @@ const controllerStack = new ControllerStack(app, "ControllerStack", {
   adminAuthorizer: authStack.adminAuthorizer,
   userAuthorizer: authStack.userAuthorizer,
   crewTable: persistenceStack.crewTable,
+  imagesBucket: persistenceStack.imagesBucket,
   env: {
     account: process.env.CDK_DEFAULT_ACCOUNT,
     region: process.env.CDK_DEFAULT_REGION,

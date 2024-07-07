@@ -13,7 +13,8 @@ export interface Movie {
   actors: string;
   created_at: string;
   modified_at: string;
-  thumbnail: string;
+  new_thumbnail?: string;
+  thumbnail?: string;
   search_field?: string;
 }
 

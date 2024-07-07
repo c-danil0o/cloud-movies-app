@@ -20,13 +20,13 @@
       <span class="data-key">Director:</span>
 
       <div class="input-field" type="text" [style]="{width:'60%'}">
-        <p-chips  [(ngModel)]="directors" />
+        <p-chips [(ngModel)]="directors" />
       </div>
     </div>
     <div class="data-entry">
       <span class="data-key">Actors:</span>
       <div class="input-field" type="text" [style]="{width:'60%'}">
-        <p-chips  [(ngModel)]="actors" />
+        <p-chips [(ngModel)]="actors" />
       </div>
 
     </div>
@@ -51,7 +51,7 @@
     <div class="data-entry">
       <span class="data-key">Thumbnail:</span>
       <p-fileUpload mode="basic" chooseLabel="Choose file" [customUpload]="true" (onSelect)="thumbnailSelected($event)"
-        accept="image/*" maxFileSize="100000000"></p-fileUpload>
+        accept="image/jpeg" maxFileSize="100000000"></p-fileUpload>
     </div>
     <div class="data-entry">
       <span class="data-key">Movie:</span>
