@@ -4,6 +4,8 @@ import { SNS } from "aws-sdk";
 
 async function handler(event: any, context: any) {
     try {
+        console.log(event);
+
         const movie = event['Payload']['Attributes'] as Movie;
         console.log("got movie");
 
