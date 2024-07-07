@@ -23,6 +23,7 @@ async function handler(event: APIGatewayEvent, context: Context) {
     params.directors.join(',') +
     '%' +
     params.genre;
+  console.log(search_value)
   try {
     const client = new DynamoDBClient({});
     const docClient = DynamoDBDocumentClient.from(client);
@@ -30,7 +31,7 @@ async function handler(event: APIGatewayEvent, context: Context) {
     const command = new QueryCommand({
       TableName: MOVIES_TABLE_NAME,
       IndexName: 'SearchIndex',
-      KeyConditionExpression: "#seach_field = :search_field",
+      KeyConditionExpression: "#search_field = :search_field",
       ExpressionAttributeNames: {
         "#upload_status": "upload_status",
         "#id": "id",

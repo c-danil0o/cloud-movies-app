@@ -86,6 +86,9 @@ export class MoviesCatalogComponent implements OnInit {
       });
     }
   }
+  onHide() {
+    this.searchCriteria = null;
+  }
 
   msActors: string[] = [];
   msDirectors: string[] = [];
@@ -111,6 +114,7 @@ export class MoviesCatalogComponent implements OnInit {
         next: (results: any) => {
           this.movies = results.Movies
           this.visibleSearchDialog = false;
+          this.searchCriteria = null;
         }
 
       })

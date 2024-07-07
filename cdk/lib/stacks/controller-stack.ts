@@ -206,6 +206,8 @@ export class ControllerStack extends cdk.Stack {
     dbTable.grantReadWriteData(deleteMovieLambda);
     dbTable.grantReadWriteData(postMetadataLambda);
     dbTable.grantReadWriteData(searchLambda);
+    dbTable.grantReadWriteData(multi_searchLambda);
+
 
 
     ratingsTable.grantReadWriteData(rateMovieLambda);
@@ -368,7 +370,7 @@ export class ControllerStack extends cdk.Stack {
       integration: searchLambdaIntegration,
     });
     api.addRoutes({
-      path: "/muliti-search",
+      path: "/multi-search",
       methods: [HttpMethod.POST],
       integration: multi_searchLambdaIntegration,
     });
