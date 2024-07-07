@@ -29,6 +29,7 @@ const controllerStack = new ControllerStack(app, "ControllerStack", {
   feedInfoTable: persistenceStack.feedInfoTable,
   adminAuthorizer: authStack.adminAuthorizer,
   userAuthorizer: authStack.userAuthorizer,
+  userAdminAuthorizer: authStack.userAdminAuthorizer,
   crewTable: persistenceStack.crewTable,
   imagesBucket: persistenceStack.imagesBucket,
   env: {

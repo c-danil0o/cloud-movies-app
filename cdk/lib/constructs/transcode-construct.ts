@@ -10,7 +10,7 @@ import { Runtime } from "aws-cdk-lib/aws-lambda";
 import { SqsDestination } from 'aws-cdk-lib/aws-s3-notifications';
 import path = require('path');
 import { Table } from 'aws-cdk-lib/aws-dynamodb';
-import {PolicyStatement} from "aws-cdk-lib/aws-iam";
+import { PolicyStatement } from "aws-cdk-lib/aws-iam";
 
 export class Transcoder extends Construct {
 

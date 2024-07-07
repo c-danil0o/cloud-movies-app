@@ -16,6 +16,7 @@ import { join } from 'path';
 export class AuthStack extends cdk.Stack {
   adminAuthorizer: HttpLambdaAuthorizer;
   userAuthorizer: HttpLambdaAuthorizer;
+  userAdminAuthorizer: HttpLambdaAuthorizer;
 
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
@@ -115,6 +116,16 @@ export class AuthStack extends cdk.Stack {
       }
     })
 
+    const userAdminAuthorizerLambda = new NodejsFunction(this, "UserAdminAuthorizerLambda", {
+      entry: 'resources/lambda/auth/authorizer/admin-user-auth.ts',
+      handler: 'handler',
+      depsLockFilePath: join(__dirname, '../../resources/lambda/auth/authorizer/', 'package-lock.json'),
+      runtime: Runtime.NODEJS_20_X,
+      environment: {
+        USER_POOL_ID: userPool.userPoolId,
+        CLIENT_ID: appIntegrationClient.userPoolClientId,
+      }
+    })
 
     this.adminAuthorizer = new HttpLambdaAuthorizer("AdminAuthorizer", adminAuthorizerLambda, {
       responseTypes: [HttpLambdaResponseType.SIMPLE]
@@ -122,6 +133,10 @@ export class AuthStack extends cdk.Stack {
 
 
     this.userAuthorizer = new HttpLambdaAuthorizer("UserAuthorizer", userAuthorizerLambda, {
+      responseTypes: [HttpLambdaResponseType.SIMPLE]
+    })
+
+    this.userAdminAuthorizer = new HttpLambdaAuthorizer("UserAdminAuthorizer", userAdminAuthorizerLambda, {
       responseTypes: [HttpLambdaResponseType.SIMPLE]
     })
   }

@@ -12,6 +12,7 @@ import { EditMovieComponent } from './movies/edit-movie/edit-movie.component';
 
 
 export const routes: Routes = [
+  { path: '', redirectTo: 'catalog', pathMatch: 'full' },
   { component: LoginComponent, path: "login" },
   { component: RegisterComponent, path: "register" },
   { component: ConfirmComponent, path: "confirm/:email" },

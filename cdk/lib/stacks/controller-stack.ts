@@ -27,6 +27,7 @@ export interface ControllerProps extends cdk.StackProps {
   feedInfoTable: Table;
   adminAuthorizer: HttpLambdaAuthorizer;
   userAuthorizer: HttpLambdaAuthorizer;
+  userAdminAuthorizer: HttpLambdaAuthorizer;
   crewTable: Table;
   imagesBucket: Bucket;
 }
@@ -42,6 +43,7 @@ export class ControllerStack extends cdk.Stack {
     const feedInfoTable = props?.feedInfoTable;
     const adminAuthorizer = props?.adminAuthorizer;
     const userAuthorizer = props?.userAuthorizer;
+    const userAdminAuthorizer = props?.userAdminAuthorizer;
     const crewTable = props?.crewTable;
     const imagesBucket = props?.imagesBucket;
 
@@ -306,6 +308,7 @@ export class ControllerStack extends cdk.Stack {
       path: "/download/{id}",
       methods: [HttpMethod.POST],
       integration: downloadLamdaIntegration,
+      authorizer: userAdminAuthorizer,
     });
     api.addRoutes({
       path: "/upload",
@@ -334,52 +337,62 @@ export class ControllerStack extends cdk.Stack {
       path: "/all",
       methods: [HttpMethod.GET],
       integration: getAllMoviesLambdaIntegration,
+      authorizer: userAdminAuthorizer,
     });
     api.addRoutes({
       path: "/movie/{id}",
       methods: [HttpMethod.GET],
       integration: getMovieByIdIntegration,
+      authorizer: userAdminAuthorizer,
     });
 
     api.addRoutes({
       path: "/rate",
       methods: [HttpMethod.POST],
       integration: rateMovieIntegration,
+      authorizer: userAuthorizer,
     });
     api.addRoutes({
       path: "/subscribe",
       methods: [HttpMethod.POST],
       integration: subscribeIntegration,
+      authorizer: userAuthorizer,
     });
     api.addRoutes({
       path: "/subscriptions/{id}",
       methods: [HttpMethod.GET],
       integration: getSubscriptionsIntegration,
+      authorizer: userAuthorizer,
     });
     api.addRoutes({
       path: "/unsubscribe",
       methods: [HttpMethod.POST],
       integration: unsubscribeIntegration,
+      authorizer: userAuthorizer,
     });
     api.addRoutes({
       path: "/feed/{user_id}",
       methods: [HttpMethod.GET],
       integration: getPersonalizedFeedIntegration,
+      authorizer: userAuthorizer,
     });
     api.addRoutes({
       path: "/rating",
       methods: [HttpMethod.GET],
       integration: getUserMovieRatingIntegration,
+      authorizer: userAuthorizer,
     });
     api.addRoutes({
       path: "/search",
       methods: [HttpMethod.GET],
       integration: searchLambdaIntegration,
+      authorizer: userAdminAuthorizer,
     });
     api.addRoutes({
       path: "/multi-search",
       methods: [HttpMethod.POST],
       integration: multi_searchLambdaIntegration,
+      authorizer: userAdminAuthorizer,
     });
     new CfnOutput(this, "ApiEndpoint", {
       value: api.apiEndpoint,
