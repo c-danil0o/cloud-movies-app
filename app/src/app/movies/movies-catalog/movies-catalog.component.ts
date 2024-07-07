@@ -26,7 +26,7 @@ export class MoviesCatalogComponent implements OnInit {
     { name: 'Description', value: 'description' },
     { name: 'Actors', value: 'actor' },
     { name: 'Director', value: 'director' },
-    { name: 'Multiparameter', value: 'multiparameter'}
+    { name: 'Multiparameter', value: 'multiparameter' }
   ];
   role: string = 'none';
 
@@ -46,7 +46,7 @@ export class MoviesCatalogComponent implements OnInit {
     }
   }
 
-  
+
 
   loadMovies() {
     if (this.role == "User") {
@@ -103,15 +103,17 @@ export class MoviesCatalogComponent implements OnInit {
   mstitle: string = '';
   msdescription: string = '';
 
-  multiParameterSearch(){
-    const searchParams = {
-      title: this.mstitle,
-      genre: this.msgenre ? this.msgenre.name : '',
-      description: this.msdescription,
-      actors: this.msActors.map(actor => actor.trim()),
-      directors: this.msDirectors.map(director => director.trim())
-    };
+  multiParameterSearch() {
+    const actors = this.msActors.map(actor => actor.trim());
+    const directors = this.msDirectors.map(director => director.trim());
+    if (this.mstitle != "" && this.msgenre && this.msdescription != "" && this.msActors.length > 0 && this.msDirectors.length > 0) {
+      this.movieService.multi_search(this.mstitle, this.msdescription, this.msgenre.code, actors, directors).subscribe({
+        next: (results: any) => {
+          this.movies = results.Movies
+          this.visibleSearchDialog = false;
+        }
 
-    console.log('Search Parameters:', searchParams);
+      })
+    }
   }
 }
