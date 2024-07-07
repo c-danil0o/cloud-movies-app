@@ -51,7 +51,8 @@ async function processMessageAsync(message: SQSRecord, arn: string, bucket: stri
                 },
 
               ],
-            "transcodeOutput": {}
+            "transcodeOutput": {},
+            "output": {}
           }
         )
       }
