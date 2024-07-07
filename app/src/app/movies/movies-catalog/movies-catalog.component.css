@@ -49,3 +49,39 @@
 .add-movie {
   margin-left: 30px;
 }
+
+p-dialog label {
+  padding-right: 5vw;
+}
+
+.dialog-row{
+  display: flex;
+  justify-content: space-between;
+  padding-bottom: 2rem;
+}
+
+.dialog-row input{
+  width: 15rem;
+}
+
+.dialog-buttons{
+  padding-top: 2rem;
+  display: flex;
+  justify-content: end;
+}
+
+p-dropdown {
+  width: 15rem;
+}
+
+.dialog-buttons p-button{
+  padding-right: 1rem;
+}
+
+::ng-deep .p-input-wrapper ul{
+  width: 100% !important;
+}
+
+::ng-deep .p-input-wrapper{
+  width: 100% !important;
+}

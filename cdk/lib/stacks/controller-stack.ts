@@ -53,9 +53,9 @@ export class ControllerStack extends cdk.Stack {
           CorsHttpMethod.POST,
           CorsHttpMethod.OPTIONS,
         ],
-        allowOrigins: ["http://localhost:4200"],
+        allowOrigins: ["*"],
         allowHeaders: ["Content-Type", "Authorization"],
-        allowCredentials: true,
+        allowCredentials: false,
         exposeHeaders: ["*"],
         maxAge: cdk.Duration.days(1),
       },
@@ -122,6 +122,11 @@ export class ControllerStack extends cdk.Stack {
 
     const searchLambda = new NodejsFunction(this, "SearchLambda", {
       entry: "resources/lambda/movie/search.ts",
+      handler: "handler",
+      ...nodeJsFunctionProps,
+    });
+    const multi_searchLambda = new NodejsFunction(this, "MultiSearchLambda", {
+      entry: "resources/lambda/movie/multi-search.ts",
       handler: "handler",
       ...nodeJsFunctionProps,
     });
@@ -201,6 +206,8 @@ export class ControllerStack extends cdk.Stack {
     dbTable.grantReadWriteData(deleteMovieLambda);
     dbTable.grantReadWriteData(postMetadataLambda);
     dbTable.grantReadWriteData(searchLambda);
+    dbTable.grantReadWriteData(multi_searchLambda);
+
 
 
     ratingsTable.grantReadWriteData(rateMovieLambda);
@@ -283,6 +290,10 @@ export class ControllerStack extends cdk.Stack {
       "searchLambdaIntegration",
       searchLambda,
     );
+    const multi_searchLambdaIntegration = new HttpLambdaIntegration(
+      "MultisearchLambdaIntegration",
+      multi_searchLambda,
+    );
 
     api.addRoutes({
       path: "/download/{id}",
@@ -357,6 +368,11 @@ export class ControllerStack extends cdk.Stack {
       path: "/search",
       methods: [HttpMethod.GET],
       integration: searchLambdaIntegration,
+    });
+    api.addRoutes({
+      path: "/multi-search",
+      methods: [HttpMethod.POST],
+      integration: multi_searchLambdaIntegration,
     });
     new CfnOutput(this, "ApiEndpoint", {
       value: api.apiEndpoint,
