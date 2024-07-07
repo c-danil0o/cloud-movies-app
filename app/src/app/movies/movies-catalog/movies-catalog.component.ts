@@ -5,6 +5,7 @@ import { AuthService } from '../../services/auth.service';
 import { MovieService } from '../../services/movie.service';
 import { SubscriptionAndFeedInfo } from '../../models/subscription_and_feed_info';
 
+
 @Component({
   selector: 'app-movies-catalog',
   templateUrl: './movies-catalog.component.html',
@@ -25,6 +26,7 @@ export class MoviesCatalogComponent implements OnInit {
     { name: 'Description', value: 'description' },
     { name: 'Actors', value: 'actor' },
     { name: 'Director', value: 'director' },
+    { name: 'Multiparameter', value: 'multiparameter'}
   ];
   role: string = 'none';
 
@@ -35,6 +37,25 @@ export class MoviesCatalogComponent implements OnInit {
   addMovie() {
     this.router.navigate(['/add-movie']);
   }
+
+  visibleSearchDialog: boolean = false;
+
+  onSelectionChange(event: any): void {
+    if (event.value.value === 'multiparameter') {
+      this.visibleSearchDialog = true;
+    }
+  }
+
+  genre: { name: string; code: string } | null = null;
+  genres = [
+    { name: 'Action', code: 'action' },
+    { name: 'Adventure', code: 'adventure' },
+    { name: 'History', code: 'history' },
+    { name: 'Comedy', code: 'comedy' },
+    { name: 'Romance', code: 'romance' },
+    { name: 'Western', code: 'western' },
+  ];
+
   loadMovies() {
     if (this.role == "User") {
       this.authService.getUserInfo().subscribe({
@@ -72,5 +93,9 @@ export class MoviesCatalogComponent implements OnInit {
         }
       });
     }
+  }
+
+  multiParameterSearch(){
+    console.log()
   }
 }
