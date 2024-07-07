@@ -13,6 +13,7 @@ const BUCKET_NAME = process.env.BUCKET_NAME || "";
 const TABLE_NAME = process.env.TABLE_NAME || "";
 const CREW_TABLE_NAME = process.env.CREW_TABLE_NAME || "";
 const MOVIES_TABLE_NAME = process.env.TABLE_NAME || "";
+const IMAGES_BUCKET = process.env.IMAGES_BUCKET || "";
 
 async function handler(event: APIGatewayProxyEvent, context: Context) {
   if (!event.body) {
@@ -86,8 +87,25 @@ async function handler(event: APIGatewayProxyEvent, context: Context) {
       expiresIn: 500,
     });
     console.log("PresignedUrl: ", presignedUrl);
+    console.log(item)
 
     item.id = key;
+    // upload image first
+    if (item.new_thumbnail) {
+      var image = Buffer.from(item.new_thumbnail.replace(/^data:image\/\w+;base64,/, ""), 'base64')
+      const putImageCommand = new PutObjectCommand({
+        "Body": image,
+        "Bucket": IMAGES_BUCKET,
+        "Key": `${item.id}.jpeg`
+      })
+      await client.send(putImageCommand);
+      console.log("uploaded thumbnail")
+      const encodeFileName = encodeURIComponent(`${item.id}.jpeg`);
+
+
+      item.new_thumbnail = undefined;
+      item.thumbnail = `https://${IMAGES_BUCKET}.s3.amazonaws.com/${encodeFileName}`;
+    }
     const params = {
       TableName: TABLE_NAME,
       Item: item,
@@ -127,5 +145,6 @@ async function putInCastAndCrewTable(movie: Movie) {
     }
   }
 }
+
 
 export { handler };

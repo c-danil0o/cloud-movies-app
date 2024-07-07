@@ -22,6 +22,7 @@ export class MovieService {
   constructor(private httpClient: HttpClient) { }
 
   getUploadUrl(movie: Movie): Observable<UploadUrl> {
+    console.log(movie)
     return this.httpClient.post<UploadUrl>(environment.apiGateway + "upload", movie, {
       headers: this.headers
     })

@@ -23,6 +23,7 @@ export class PersistenceStack extends cdk.Stack {
   subscriptionsTable: Table;
   feedInfoTable: Table;
   crewTable: Table;
+  imagesBucket: Bucket;
 
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
@@ -124,6 +125,19 @@ export class PersistenceStack extends cdk.Stack {
       blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
       removalPolicy: RemovalPolicy.DESTROY,
       accessControl: BucketAccessControl.PRIVATE,
+      cors: [s3CorsRule],
+    });
+
+    this.imagesBucket = new Bucket(this, "Images-bucket", {
+      bucketName: "movies-cloud-images-101",
+      publicReadAccess: true,
+      blockPublicAccess: {
+        blockPublicPolicy: false,
+        blockPublicAcls: false,
+        ignorePublicAcls: false,
+        restrictPublicBuckets: false,
+      },
+      removalPolicy: RemovalPolicy.DESTROY,
       cors: [s3CorsRule],
     });
 

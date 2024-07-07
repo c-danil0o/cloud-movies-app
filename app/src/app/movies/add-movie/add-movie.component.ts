@@ -1,16 +1,16 @@
-import {Component} from '@angular/core';
-import {FormsModule} from '@angular/forms';
-import {InputTextModule} from 'primeng/inputtext';
-import {SelectButtonModule} from 'primeng/selectbutton';
-import {DropdownModule} from 'primeng/dropdown';
-import {FileSelectEvent, FileUploadModule} from 'primeng/fileupload';
-import {ChipsModule} from 'primeng/chips';
-import {MessageService} from 'primeng/api';
-import {Movie} from '../../models/movie';
-import {MovieService} from '../../services/movie.service';
-import {UploadUrl} from '../../models/upload_url';
-import {ProgressSpinnerModule} from 'primeng/progressspinner';
-import {Router} from '@angular/router';
+import { Component } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { InputTextModule } from 'primeng/inputtext';
+import { SelectButtonModule } from 'primeng/selectbutton';
+import { DropdownModule } from 'primeng/dropdown';
+import { FileSelectEvent, FileUploadModule } from 'primeng/fileupload';
+import { ChipsModule } from 'primeng/chips';
+import { MessageService } from 'primeng/api';
+import { Movie } from '../../models/movie';
+import { MovieService } from '../../services/movie.service';
+import { UploadUrl } from '../../models/upload_url';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-add-movie',
@@ -46,8 +46,8 @@ export class AddMovieComponent {
   }
 
   options: any[] = [
-    {label: 'Movie', value: 'movie'},
-    {label: 'Series', value: 'series'},
+    { label: 'Movie', value: 'movie' },
+    { label: 'Series', value: 'series' },
   ];
   selectedOption: string = 'movie';
 
@@ -57,12 +57,12 @@ export class AddMovieComponent {
   directors: string[] = [];
   genre: { name: string; code: string } | null = null;
   genres = [
-    {name: 'Action', code: 'action'},
-    {name: 'Adventure', code: 'adventure'},
-    {name: 'History', code: 'history'},
-    {name: 'Comedy', code: 'comedy'},
-    {name: 'Romance', code: 'romance'},
-    {name: 'Western', code: 'western'},
+    { name: 'Action', code: 'action' },
+    { name: 'Adventure', code: 'adventure' },
+    { name: 'History', code: 'history' },
+    { name: 'Comedy', code: 'comedy' },
+    { name: 'Romance', code: 'romance' },
+    { name: 'Western', code: 'western' },
   ];
   description: string = '';
   actors: string[] = [];
@@ -119,7 +119,7 @@ export class AddMovieComponent {
         rating: Number(this.rating),
         fileSize: this.fileSize,
         actors: this.actors.map(actor => actor.trim()),
-        thumbnail: this.thumbnail,
+        new_thumbnail: this.thumbnail,
         created_at: new Date().valueOf(),
         modified_at: this.movie?.lastModified || 0,
         search_field:

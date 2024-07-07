@@ -114,7 +114,7 @@ export class EditMovieComponent implements OnInit {
   modified_at: number = 0;
   duration: string = '';
   thumbnail: any;
-  new_thumbnail: any = '';
+  new_thumbnail: any = "";
   movie: File | null = null;
   fileSize: number = 0;
 
@@ -179,8 +179,8 @@ export class EditMovieComponent implements OnInit {
           this.genre['code'],
       };
       // uploading new thumbnail
-      if (this.new_thumbnail != '') {
-        movie.thumbnail = this.new_thumbnail;
+      if (this.new_thumbnail != "") {
+        movie.new_thumbnail = this.new_thumbnail;
       }
       // uploading new file
       if (this.movie != null) {

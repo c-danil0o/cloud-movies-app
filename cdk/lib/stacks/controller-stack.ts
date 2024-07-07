@@ -28,6 +28,7 @@ export interface ControllerProps extends cdk.StackProps {
   adminAuthorizer: HttpLambdaAuthorizer;
   userAuthorizer: HttpLambdaAuthorizer;
   crewTable: Table;
+  imagesBucket: Bucket;
 }
 
 export class ControllerStack extends cdk.Stack {
@@ -42,6 +43,7 @@ export class ControllerStack extends cdk.Stack {
     const adminAuthorizer = props?.adminAuthorizer;
     const userAuthorizer = props?.userAuthorizer;
     const crewTable = props?.crewTable;
+    const imagesBucket = props?.imagesBucket;
 
     const api = new HttpApi(this, "MoviesApi", {
       apiName: "MoviesApi",
@@ -76,6 +78,7 @@ export class ControllerStack extends cdk.Stack {
         FEED_TABLE_NAME: feedInfoTable.tableName,
         BUCKET_NAME: moviesBucket.bucketName,
         CREW_TABLE_NAME: crewTable.tableName,
+        IMAGES_BUCKET: imagesBucket.bucketName,
       },
       runtime: Runtime.NODEJS_20_X,
     };
@@ -233,6 +236,10 @@ export class ControllerStack extends cdk.Stack {
     crewTable.grantReadWriteData(postMetadataLambda);
     crewTable.grantReadWriteData(deleteMovieLambda);
     crewTable.grantReadData(searchLambda);
+
+    imagesBucket.grantReadWrite(uploadMovieLambda);
+    imagesBucket.grantReadWrite(deleteMovieLambda);
+    imagesBucket.grantReadWrite(postMetadataLambda);
 
     const downloadLamdaIntegration = new HttpLambdaIntegration(
       "DownloadLambdaIntegration",
