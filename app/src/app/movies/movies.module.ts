@@ -11,6 +11,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { SelectButtonModule } from 'primeng/selectbutton';
 import { ChipModule } from 'primeng/chip'
 import { DialogModule } from 'primeng/dialog';
+import { ChipsModule } from 'primeng/chips';
 
 @NgModule({
   declarations: [
@@ -27,7 +28,8 @@ import { DialogModule } from 'primeng/dialog';
     InputTextModule,
     SelectButtonModule,
     ChipModule,
-    DialogModule
+    DialogModule,
+    ChipsModule
   ],
   exports: [
     MoviesCatalogComponent

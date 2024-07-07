@@ -22,24 +22,28 @@
 <p-dialog header="Input search parameters" [modal]="true" [(visible)]="visibleSearchDialog" [style]="{ width: '30rem' }">
   <div class="dialog-row">
     <label for="title">Title</label>
-    <input pInputText id="title" class="flex-auto" autocomplete="off" />
+    <input pInputText id="mstitle" class="flex-auto" autocomplete="off" [(ngModel)]="mstitle" />
   </div>
   <div class="dialog-row">
     <label for="genre">Genre</label>
-    <p-dropdown class="input-field" [style]="{ width: '100%' }" [options]="genres" [(ngModel)]="genre"
+    <p-dropdown class="input-field" [style]="{ width: '100%' }" [options]="genres" [(ngModel)]="msgenre"
       optionLabel="name"></p-dropdown>
   </div>
   <div class="dialog-row">
     <label for="description">Description</label>
-    <input pInputText id="description" class="flex-auto" autocomplete="off" />
+    <input pInputText id="msdescription" class="flex-auto" autocomplete="off" [(ngModel)]="msdescription"/>
   </div>
   <div class="dialog-row">
-    <label for="actor">Actor</label>
-    <input pInputText id="actor" class="flex-auto" autocomplete="off" />
+    <label for="actors">Actors</label>
+    <div class="input-field" type="text" [style]="{width:'15rem'}">
+      <p-chips  [(ngModel)]="msActors" />
+    </div>
   </div>
   <div class="dialog-row">
-    <label for="director">Director</label>
-    <input pInputText id="director" class="flex-auto" autocomplete="off" />
+    <label for="directors">Directors</label>
+    <div class="input-field" type="text" [style]="{width:'15rem'}">
+      <p-chips  [(ngModel)]="msDirectors" />
+    </div>
   </div>
   <div class="dialog-row dialog-buttons">
     <p-button label="Cancel" [outlined]="true" severity="secondary" (click)="visibleSearchDialog = false" />

@@ -46,15 +46,7 @@ export class MoviesCatalogComponent implements OnInit {
     }
   }
 
-  genre: { name: string; code: string } | null = null;
-  genres = [
-    { name: 'Action', code: 'action' },
-    { name: 'Adventure', code: 'adventure' },
-    { name: 'History', code: 'history' },
-    { name: 'Comedy', code: 'comedy' },
-    { name: 'Romance', code: 'romance' },
-    { name: 'Western', code: 'western' },
-  ];
+  
 
   loadMovies() {
     if (this.role == "User") {
@@ -95,7 +87,31 @@ export class MoviesCatalogComponent implements OnInit {
     }
   }
 
+  msActors: string[] = [];
+  msDirectors: string[] = [];
+
+  msgenre: { name: string; code: string } | null = null;
+  genres = [
+    { name: 'Action', code: 'action' },
+    { name: 'Adventure', code: 'adventure' },
+    { name: 'History', code: 'history' },
+    { name: 'Comedy', code: 'comedy' },
+    { name: 'Romance', code: 'romance' },
+    { name: 'Western', code: 'western' },
+  ];
+
+  mstitle: string = '';
+  msdescription: string = '';
+
   multiParameterSearch(){
-    console.log()
+    const searchParams = {
+      title: this.mstitle,
+      genre: this.msgenre ? this.msgenre.name : '',
+      description: this.msdescription,
+      actors: this.msActors.map(actor => actor.trim()),
+      directors: this.msDirectors.map(director => director.trim())
+    };
+
+    console.log('Search Parameters:', searchParams);
   }
 }

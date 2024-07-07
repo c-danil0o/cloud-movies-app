@@ -78,4 +78,10 @@ p-dropdown {
   padding-right: 1rem;
 }
 
+::ng-deep .p-input-wrapper ul{
+  width: 100% !important;
+}
 
+::ng-deep .p-input-wrapper{
+  width: 100% !important;
+}
