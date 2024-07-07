@@ -22,7 +22,13 @@ async function handler(event: any, context: any) {
 
     const response = await docClient.send(command);
     console.log(response);
-    return { statusCode: 200, body: JSON.stringify("success") }
+    if (response.Attributes){
+      console.log(response.Attributes);
+      response.Attributes["thumbnail"] = "";
+    }
+
+    console.log(response);
+    return response;
 
 
 

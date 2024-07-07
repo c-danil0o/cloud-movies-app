@@ -1,16 +1,16 @@
-import { Component } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { InputTextModule } from 'primeng/inputtext';
-import { SelectButtonModule } from 'primeng/selectbutton';
-import { DropdownModule } from 'primeng/dropdown';
-import { FileSelectEvent, FileUploadModule } from 'primeng/fileupload';
-import { ChipsModule } from 'primeng/chips';
-import { MessageService } from 'primeng/api';
-import { Movie } from '../../models/movie';
-import { MovieService } from '../../services/movie.service';
-import { UploadUrl } from '../../models/upload_url';
-import { ProgressSpinnerModule } from 'primeng/progressspinner';
-import { Router } from '@angular/router';
+import {Component} from '@angular/core';
+import {FormsModule} from '@angular/forms';
+import {InputTextModule} from 'primeng/inputtext';
+import {SelectButtonModule} from 'primeng/selectbutton';
+import {DropdownModule} from 'primeng/dropdown';
+import {FileSelectEvent, FileUploadModule} from 'primeng/fileupload';
+import {ChipsModule} from 'primeng/chips';
+import {MessageService} from 'primeng/api';
+import {Movie} from '../../models/movie';
+import {MovieService} from '../../services/movie.service';
+import {UploadUrl} from '../../models/upload_url';
+import {ProgressSpinnerModule} from 'primeng/progressspinner';
+import {Router} from '@angular/router';
 
 @Component({
   selector: 'app-add-movie',
@@ -32,10 +32,13 @@ export class AddMovieComponent {
     private router: Router,
     private messageService: MessageService,
     private movieService: MovieService,
-  ) { }
+  ) {
+  }
+
   thumbnailSelected($event: FileSelectEvent) {
     this.toBase64($event.files[0]).then((result) => (this.thumbnail = result));
   }
+
   movieSelected($event: FileSelectEvent) {
     this.fileSize = $event.files[0].size;
     this.movie = $event.files[0];
@@ -43,8 +46,8 @@ export class AddMovieComponent {
   }
 
   options: any[] = [
-    { label: 'Movie', value: 'movie' },
-    { label: 'Series', value: 'series' },
+    {label: 'Movie', value: 'movie'},
+    {label: 'Series', value: 'series'},
   ];
   selectedOption: string = 'movie';
 
@@ -54,12 +57,12 @@ export class AddMovieComponent {
   directors: string[] = [];
   genre: { name: string; code: string } | null = null;
   genres = [
-    { name: 'Action', code: 'action' },
-    { name: 'Adventure', code: 'adventure' },
-    { name: 'History', code: 'history' },
-    { name: 'Comedy', code: 'comedy' },
-    { name: 'Romance', code: 'romance' },
-    { name: 'Western', code: 'western' },
+    {name: 'Action', code: 'action'},
+    {name: 'Adventure', code: 'adventure'},
+    {name: 'History', code: 'history'},
+    {name: 'Comedy', code: 'comedy'},
+    {name: 'Romance', code: 'romance'},
+    {name: 'Western', code: 'western'},
   ];
   description: string = '';
   actors: string[] = [];
@@ -84,13 +87,11 @@ export class AddMovieComponent {
     ) {
       if (
         (this.selectedOption == 'series' &&
-          isNaN(Number(this.episode_number))) ||
+          isNaN(Number(this.episode_number)) && Number(this.episode_number) < 1) ||
         Number(this.year) < 1800 ||
         Number(this.year) > 2030 ||
         Number(this.rating) <= 0.0 ||
-        Number(this.rating) > 10.0 ||
-        Number(this.episode_number) < 1
-
+        Number(this.rating) > 10.0
       ) {
         this.messageService.add({
           severity: 'error',
@@ -176,6 +177,7 @@ export class AddMovieComponent {
       life: 2000,
     });
   }
+
   toBase64 = (file: File) =>
     new Promise((resolve, reject) => {
       const reader = new FileReader();
