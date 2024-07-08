@@ -20,9 +20,12 @@ const IMAGES_BUCKET = process.env.IMAGES_BUCKET || "";
 async function handler(event: APIGatewayProxyEvent, context: Context) {
   const itemId = event.pathParameters?.id;
   const deleteType = event.queryStringParameters?.deleteType;
+  const deleteImage = event.queryStringParameters?.deleteImage;
+  console.log(deleteType)
+  console.log(deleteImage)
   console.log(event);
 
-  if (!itemId || !deleteType) {
+  if (!itemId || !deleteType || !deleteType) {
     return {
       statusCode: 400,
       body: JSON.stringify("Error: You are missing the path parameter id"),
@@ -127,6 +130,9 @@ async function handler(event: APIGatewayProxyEvent, context: Context) {
         }
       }
 
+    }
+
+    if (deleteImage == "true") {
       // delete from images bucket
       const command = new DeleteObjectCommand({
         Bucket: IMAGES_BUCKET,
@@ -134,7 +140,6 @@ async function handler(event: APIGatewayProxyEvent, context: Context) {
       });
       await client.send(command);
       console.log("deleted from images bucket");
-
     }
 
     return { statusCode: 200, body: JSON.stringify("Success: Delete success") };

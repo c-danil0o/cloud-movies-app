@@ -154,7 +154,7 @@ export class MovieDetailsComponent implements OnInit {
   }
 
   delete() {
-    this.movieService.deleteMovieById(this.movieId, "full").subscribe({
+    this.movieService.deleteMovieById(this.movieId, "full", true).subscribe({
       next: (result: any) => {
         this.messageService.add({
           severity: 'success',

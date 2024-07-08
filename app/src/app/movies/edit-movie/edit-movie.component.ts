@@ -178,9 +178,11 @@ export class EditMovieComponent implements OnInit {
           '%' +
           this.genre['code'],
       };
+      let deleteImage = false;
       // uploading new thumbnail
       if (this.new_thumbnail != "") {
         movie.new_thumbnail = this.new_thumbnail;
+        deleteImage = true;
       }
       // uploading new file
       if (this.movie != null) {
@@ -200,7 +202,7 @@ export class EditMovieComponent implements OnInit {
         movie.fileSize = this.movie.size;
 
         this.movieService
-          .deleteMovieById(this.movieId, 'table-file')
+          .deleteMovieById(this.movieId, 'table-file', deleteImage)
           .subscribe({
             next: (res) => {
               console.log('deleted movie');
@@ -241,7 +243,7 @@ export class EditMovieComponent implements OnInit {
             },
           });
       } else {
-        this.movieService.deleteMovieById(this.movieId, 'table').subscribe({
+        this.movieService.deleteMovieById(this.movieId, 'table', deleteImage).subscribe({
           next: (res) => {
             console.log('deleted');
             console.log(res);

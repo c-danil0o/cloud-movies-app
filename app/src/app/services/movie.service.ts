@@ -71,10 +71,11 @@ export class MovieService {
   getMovieById(id: string): Observable<any> {
     return this.httpClient.get(environment.apiGateway + "movie/" + id)
   }
-  deleteMovieById(id: string, deleteType: string): Observable<any> {
+  deleteMovieById(id: string, deleteType: string, deleteImage: boolean): Observable<any> {
     return this.httpClient.delete(environment.apiGateway + "delete/" + id, {
       params: {
-        deleteType: deleteType
+        deleteType: deleteType,
+        deleteImage: deleteImage
       }
     })
   }
