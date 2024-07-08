@@ -9,10 +9,12 @@ import { AuthService } from '../../services/auth.service';
   styleUrls: ['./navbar.component.css']
 })
 export class NavbarComponent {
+  role: string = ""
   logout() {
     this.authService.logout()
     this.router.navigate(['/login'])
   }
   constructor(private router: Router, private authService: AuthService) {
+    this.authService.currentRole.subscribe((role) => (this.role = role));
   }
 }

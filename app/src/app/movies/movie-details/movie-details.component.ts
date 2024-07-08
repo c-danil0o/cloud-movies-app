@@ -60,22 +60,25 @@ export class MovieDetailsComponent implements OnInit {
           this.movie = data.Item;
         }
       })
-      this.authService.getUserInfo().subscribe({
-        next: (info) => {
-          if (info) {
-            this.user_id = info.id;
-            this.movieService.getMovieRate(this.user_id, this.movieId).subscribe({
-              next: (data) => {
-                if (data) {
-                  if (data.Rate) {
-                    this.rate_button_label = "Your Rate: " + String(data.Rate);
+      if (this.role == "User") {
+        this.authService.getUserInfo().subscribe({
+          next: (info) => {
+            if (info) {
+              this.user_id = info.id;
+              this.movieService.getMovieRate(this.user_id, this.movieId).subscribe({
+                next: (data) => {
+                  if (data) {
+                    if (data.Rate) {
+                      this.rate_button_label = "Your Rate: " + String(data.Rate);
+                    }
                   }
                 }
-              }
-            })
+              })
+            }
           }
-        }
-      })
+        })
+      }
+
 
     });
   }
