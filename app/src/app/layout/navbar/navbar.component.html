@@ -1,0 +1,24 @@
+<div class="navbar">
+
+  <div class="logo">
+    <img src="assets/img/movie-icon.png" alt="Logo" class="logo_image">
+    <span class="logo_text">Moviflix</span>
+  </div>
+
+  <div class="buttons">
+    <button pButton type="button" [routerLink]="['/catalog']" label="Catalog" class="p-button-secondary"></button>
+  </div>
+
+  @if (role == 'User'){
+  <div class="buttons">
+    <button pButton type="button" [routerLink]="['/subscriptions']" label="Subscriptions"
+      class="p-button-secondary"></button>
+  </div>
+
+  }
+
+  <div class="buttons">
+    <button pButton type="button" (click)="logout()" label="Logout" class="p-button-secondary"></button>
+  </div>
+
+</div>
